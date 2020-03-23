@@ -1,0 +1,53 @@
+<resources>
+    <string name="app_name">Call Timer</string>
+    <string name="title_recents">Recents</string>
+    <string name="title_contacts">Contacts</string>
+    <string name="title_timer">Timer</string>
+    <string name="title_usage">Usage</string>
+
+    <string name="text_no_call_log">Your call history is empty</string>
+    <string name="text_no_favorites">No one is on your speed dial yet</string>
+    <string name="text_no_contacts">You don\'t have any contacts yet</string>
+    <string name="text_no_voicemail">Your voice mail inbox is empty</string>
+
+    <string name="dialer">Dialer</string>
+    <string name="back">Back</string>
+    <string name="call">Call</string>
+
+    <string name="number_one">1</string>
+    <string name="abc">ABC</string>
+    <string name="number_two">2</string>
+    <string name="number_three">3</string>
+    <string name="def">DEF</string>
+    <string name="ghi">GHI</string>
+    <string name="number_four">4</string>
+    <string name="number_five">5</string>
+    <string name="jkl">JKL</string>
+    <string name="mno">MNO</string>
+    <string name="pqrs">PQRS</string>
+    <string name="tuv">TUV</string>
+    <string name="wxyz">WXYZ</string>
+    <string name="number_six">6</string>
+    <string name="number_seven">7</string>
+    <string name="number_eight">8</string>
+    <string name="number_nine">9</string>
+    <string name="number_zero">0</string>
+    <string name="plus">+</string>
+    <string name="pound">#</string>
+    <string name="star">*</string>
+
+    <string name="text_create_new_contact">Create New Contact</string>
+
+    <string name="snack_text_permissions">Call Timer needs permission to be the default phone app to function properly.</string>
+    <string name="grant">Grant</string>
+    <string name="toast_thanks">Thanks for permission!</string>
+    <string name="toast_accepted">Call Timer is now your default dialer app.</string>
+    <string name="toast_declined">Call Timer cannot function without being your default dialer.</string>
+    <string name="toast_declined_call_permission">You cannot make calls without granting call permissions.</string>
+    <string name="duration_default">00:00:00</string>
+    <string name="call_log_denied_toast">Cannot show call logs without permission.</string>
+    <string name="vibrate_denied_toast">Vibrate is needed for timer functionality.</string>
+    <string name="contacts_denied_toast">Cannot show contacts without permission.</string>
+    <string name="recent_no_permission_description_text">To see your call log, enable Call Log permission.</string>
+    <string name="enable">Enable</string>
+</resources>
