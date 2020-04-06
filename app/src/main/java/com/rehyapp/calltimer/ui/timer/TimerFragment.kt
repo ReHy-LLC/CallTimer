@@ -4,11 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.rehyapp.calltimer.R
+import com.rehyapp.calltimer.databinding.FragmentTimerBinding
 import com.rehyapp.calltimer.ui.usage.UsageViewModel
 
 class TimerFragment : Fragment() {
@@ -18,18 +17,18 @@ class TimerFragment : Fragment() {
     }
 
     private lateinit var timerViewModel: UsageViewModel
+    private lateinit var binding: FragmentTimerBinding
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         timerViewModel = ViewModelProvider(this).get(UsageViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_timer, container, false)
-        val textView: TextView = root.findViewById(R.id.text_timer)
+        binding = FragmentTimerBinding.inflate(inflater, container, false)
         timerViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
+            binding.textTimer.text = it
         })
-        return root
+        return binding.root
     }
 }

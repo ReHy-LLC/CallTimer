@@ -9,12 +9,12 @@ import android.telecom.Call
 import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import com.rehyapp.calltimer.databinding.ActivityCallBinding
 import com.rehyapp.calltimer.in_call_utils.Constants.asString
 import com.rehyapp.calltimer.in_call_utils.OngoingCall
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import io.reactivex.functions.Predicate
-import kotlinx.android.synthetic.main.activity_call.*
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -32,13 +32,15 @@ class CallActivity : AppCompatActivity() {
         }
     }
 
+    private lateinit var binding: ActivityCallBinding
     private var disposables: CompositeDisposable? = null
     private var number: String? = null
     private var ongoingCall: OngoingCall? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_call)
+        binding = ActivityCallBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         hideBottomNavigationBar()
 
         ongoingCall = OngoingCall()
@@ -55,13 +57,13 @@ class CallActivity : AppCompatActivity() {
                     WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
         }
 
-        number = Objects.requireNonNull(intent.data)?.schemeSpecificPart
+        number = Objects.requireNonNull(intent.data).schemeSpecificPart
 
-        call_answer.setOnClickListener {
+        binding.callAnswer.setOnClickListener {
             ongoingCall!!.answer()
         }
 
-        call_reject.setOnClickListener {
+        binding.callReject.setOnClickListener {
             ongoingCall!!.hangup()
         }
 
@@ -92,13 +94,13 @@ class CallActivity : AppCompatActivity() {
     }
 
     private fun updateUi(state: Int?): Consumer<in Int?>? {
-        call_info.text = "${state?.let { asString(it) }}\n$number"
+        binding.callInfo.text = "${state?.let { asString(it) }}\n$number"
         if (state != Call.STATE_RINGING) {
-            call_answer.visibility = View.GONE
-        } else call_answer.visibility = View.VISIBLE
+            binding.callAnswer.visibility = View.GONE
+        } else binding.callAnswer.visibility = View.VISIBLE
         if (state == Call.STATE_DIALING || state == Call.STATE_RINGING || state == Call.STATE_ACTIVE) {
-            call_reject.visibility = View.VISIBLE
-        } else call_reject.visibility = View.GONE
+            binding.callReject.visibility = View.VISIBLE
+        } else binding.callReject.visibility = View.GONE
         return null
     }
 

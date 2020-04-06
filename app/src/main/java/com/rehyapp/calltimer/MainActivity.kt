@@ -13,13 +13,11 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.view.isVisible
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_main.*
+import com.rehyapp.calltimer.databinding.ActivityMainBinding
 
 
 class MainActivity : AppCompatActivity() {
@@ -27,16 +25,16 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val REQUEST_CODE_SET_DEFAULT_DIALER = 3644
         private const val REQUEST_CODE_PERMISSIONS_ALL = 11
-        private const val LOG_TAG = "CallActivity"
+        private const val LOG_TAG = "ActivityMain"
     }
 
-    private lateinit var fab: FloatingActionButton
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        fab = findViewById(R.id.dial_fab)
-        val navView: BottomNavigationView = findViewById(R.id.nav_view)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        val navView: BottomNavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -63,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         val telecomManager = getSystemService(TELECOM_SERVICE) as TelecomManager
         val isAlreadyDefaultDialer = packageName == telecomManager.defaultDialerPackage
         if (isAlreadyDefaultDialer) {
-            fab.visibility = View.VISIBLE
+            binding.dialFab.visibility = View.VISIBLE
             return
         }
 
@@ -90,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         var message = getString(R.string.toast_accepted)
         when (resultCode) {
             RESULT_OK       -> {
-                fab.visibility = View.VISIBLE
+                binding.dialFab.visibility = View.VISIBLE
                 if (!hasCallLogPermission() || !hasContactsPermission() || !hasMakeCallPermission()
                     || !hasVibratePermission() || !hasWriteCallLogPermission()) {
                     ActivityCompat.requestPermissions(

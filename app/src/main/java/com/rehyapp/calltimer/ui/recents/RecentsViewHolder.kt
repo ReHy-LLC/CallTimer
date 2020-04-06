@@ -1,5 +1,6 @@
 package com.rehyapp.calltimer.ui.recents
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.view.View
@@ -7,11 +8,12 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import com.rehyapp.calltimer.R
-import com.wickerlabs.logmanager.LogObject
-import com.wickerlabs.logmanager.LogsManager
+import com.rehyapp.calltimer.calllogging.LogObject
+import com.rehyapp.calltimer.calllogging.LogsManager
 import java.text.DateFormat
 import java.util.*
 
+@SuppressLint("MissingPermission")
 class RecentsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     private var logTypeImage: AppCompatImageView = itemView.findViewById(R.id.log_type_image)

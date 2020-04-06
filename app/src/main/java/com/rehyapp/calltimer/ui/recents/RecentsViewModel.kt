@@ -3,7 +3,7 @@ package com.rehyapp.calltimer.ui.recents
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.wickerlabs.logmanager.LogObject
+import com.rehyapp.calltimer.calllogging.LogObject
 
 class RecentsViewModel : ViewModel() {
 
@@ -24,7 +24,6 @@ class RecentsViewModel : ViewModel() {
 
     private var _logList = MutableLiveData<MutableList<LogObject>>()
     var logList: LiveData<MutableList<LogObject>> = _logList
-
     fun setLogList(list: MutableList<LogObject>) {
         _logList.value = list
     }

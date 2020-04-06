@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -18,10 +17,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dgreenhalgh.android.simpleitemdecoration.linear.EndOffsetItemDecoration
 import com.dgreenhalgh.android.simpleitemdecoration.linear.StartOffsetItemDecoration
-import com.google.android.material.textview.MaterialTextView
 import com.rehyapp.calltimer.R
-import com.wickerlabs.logmanager.LogsManager
-import kotlinx.android.synthetic.main.fragment_recents.*
+import com.rehyapp.calltimer.calllogging.LogsManager
+import com.rehyapp.calltimer.databinding.FragmentRecentsBinding
 
 
 class RecentsFragment : Fragment() {
@@ -32,10 +30,7 @@ class RecentsFragment : Fragment() {
     }
 
     private lateinit var recentsViewModel: RecentsViewModel
-    private lateinit var noPermissionView: ConstraintLayout
-    private lateinit var hasPermissionView: ConstraintLayout
-    private lateinit var linkTextView: MaterialTextView
-    private lateinit var recycler: RecyclerView
+    private lateinit var binding: FragmentRecentsBinding
     private lateinit var layoutManager: RecyclerView.LayoutManager
     private lateinit var adapter: RecentsAdapter
     private lateinit var logsManager: LogsManager
@@ -43,44 +38,42 @@ class RecentsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         recentsViewModel = ViewModelProvider(this).get(RecentsViewModel::class.java)
+        binding = FragmentRecentsBinding.inflate(inflater, container, false)
 
-        val rootView = inflater.inflate(R.layout.fragment_recents, container, false)
-
-        noPermissionView = rootView.findViewById(R.id.recents_no_permission_view)
-        hasPermissionView = rootView.findViewById(R.id.recents_view)
-        linkTextView = rootView.findViewById(R.id.link_recents)
-        recycler = rootView.findViewById(R.id.recents_recycler)
-        logsManager = LogsManager(context)
+        logsManager = LogsManager(context!!)
         layoutManager = LinearLayoutManager(context)
-        recycler.layoutManager = layoutManager
+        binding.recentsRecycler.layoutManager = layoutManager
 
         val dividerItemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
         dividerItemDecoration.setDrawable(ContextCompat.getDrawable(context!!, R.drawable.divider)!!)
-        recycler.addItemDecoration(dividerItemDecoration)
-        recycler.addItemDecoration(StartOffsetItemDecoration(20))
-        recycler.addItemDecoration(EndOffsetItemDecoration(200))
+
+        binding.recentsRecycler.apply {
+            addItemDecoration(dividerItemDecoration)
+            addItemDecoration(StartOffsetItemDecoration(20))
+            addItemDecoration(EndOffsetItemDecoration(200))
+        }
 
         recentsViewModel.noPermissionRecentsText.observe(viewLifecycleOwner, Observer {
-            text_recents.text = it
+            binding.textRecents.text = it
         })
 
         recentsViewModel.noPermissionRecentsLink.observe(viewLifecycleOwner, Observer {
-            linkTextView.text = it
+            binding.linkRecents.text = it
         })
 
         val hasLogPermission = ContextCompat.checkSelfPermission(context!!, Manifest.permission.READ_CALL_LOG)
         if (hasLogPermission != PackageManager.PERMISSION_GRANTED) {
-            noPermissionView.visibility = View.VISIBLE
-            hasPermissionView.visibility = View.GONE
+            binding.recentsNoPermissionView.visibility = View.VISIBLE
+            binding.recentsView.visibility = View.GONE
             recentsViewModel.setTextNoPermissions(getString(R.string.recent_no_permission_description_text), getString(R.string.enable))
-            linkTextView.setOnClickListener {
+            binding.linkRecents.setOnClickListener {
                 requestLogPermission()
             }
         } else {
             showCallLog()
         }
 
-        return rootView
+        return binding.root
     }
 
     private fun requestLogPermission() {
@@ -99,10 +92,10 @@ class RecentsFragment : Fragment() {
     }
 
     private fun showCallLog() {
-        recycler.invalidate()
+        binding.recentsRecycler.invalidate()
         adapter = RecentsAdapter(logsManager.getLogs(LogsManager.ALL_CALLS).asReversed())
-        recycler.swapAdapter(adapter,false)
-        noPermissionView.visibility = View.GONE
-        hasPermissionView.visibility = View.VISIBLE
+        binding.recentsRecycler.swapAdapter(adapter, false)
+        binding.recentsNoPermissionView.visibility = View.GONE
+        binding.recentsView.visibility = View.VISIBLE
     }
 }
