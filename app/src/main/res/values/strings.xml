@@ -50,4 +50,8 @@
     <string name="contacts_denied_toast">Cannot show contacts without permission.</string>
     <string name="recent_no_permission_description_text">To see your call log, enable Call Log permission.</string>
     <string name="enable">Enable</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_call_details">Call Details</string>
 </resources>

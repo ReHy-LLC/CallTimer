@@ -12,14 +12,18 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dgreenhalgh.android.simpleitemdecoration.linear.EndOffsetItemDecoration
 import com.dgreenhalgh.android.simpleitemdecoration.linear.StartOffsetItemDecoration
+import com.google.android.material.textview.MaterialTextView
 import com.rehyapp.calltimer.R
-import com.rehyapp.calltimer.calllogging.LogsManager
+import com.rehyapp.calltimer.calllogging.LogManager
 import com.rehyapp.calltimer.databinding.FragmentRecentsBinding
+import com.rehyapp.calltimer.extensions.OnItemClickListener
+import com.rehyapp.calltimer.extensions.addOnItemClickListener
 
 
 class RecentsFragment : Fragment() {
@@ -33,14 +37,14 @@ class RecentsFragment : Fragment() {
     private lateinit var binding: FragmentRecentsBinding
     private lateinit var layoutManager: RecyclerView.LayoutManager
     private lateinit var adapter: RecentsAdapter
-    private lateinit var logsManager: LogsManager
+    private lateinit var logsManager: LogManager
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         recentsViewModel = ViewModelProvider(this).get(RecentsViewModel::class.java)
         binding = FragmentRecentsBinding.inflate(inflater, container, false)
 
-        logsManager = LogsManager(context!!)
+        logsManager = LogManager(context!!)
         layoutManager = LinearLayoutManager(context)
         binding.recentsRecycler.layoutManager = layoutManager
 
@@ -52,6 +56,16 @@ class RecentsFragment : Fragment() {
             addItemDecoration(StartOffsetItemDecoration(20))
             addItemDecoration(EndOffsetItemDecoration(200))
         }
+
+        binding.recentsRecycler.addOnItemClickListener(object : OnItemClickListener {
+            override fun onItemClicked(position: Int, view: View) {
+                val v = view.findViewById<MaterialTextView>(R.id.log_call_id)
+                val callId = v.text.toString().toInt()
+                val action =
+                    RecentsFragmentDirections.actionNavigationRecentsToCallDetailsFragment(callId)
+                view.findNavController().navigate(action)
+            }
+        })
 
         recentsViewModel.noPermissionRecentsText.observe(viewLifecycleOwner, Observer {
             binding.textRecents.text = it
@@ -93,7 +107,7 @@ class RecentsFragment : Fragment() {
 
     private fun showCallLog() {
         binding.recentsRecycler.invalidate()
-        adapter = RecentsAdapter(logsManager.getLogs(LogsManager.ALL_CALLS).asReversed())
+        adapter = RecentsAdapter(logsManager.getCallLogsAll().asReversed())
         binding.recentsRecycler.swapAdapter(adapter, false)
         binding.recentsNoPermissionView.visibility = View.GONE
         binding.recentsView.visibility = View.VISIBLE

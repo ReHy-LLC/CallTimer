@@ -9,7 +9,18 @@
         android:id="@+id/navigation_recents"
         android:name="com.rehyapp.calltimer.ui.recents.RecentsFragment"
         android:label="@string/title_recents"
-        tools:layout="@layout/fragment_recents" />
+        tools:layout="@layout/fragment_recents">
+        <action
+            android:id="@+id/action_navigation_recents_to_callDetailsFragment"
+            app:destination="@id/callDetailsFragment"
+            app:enterAnim="@anim/fragment_close_enter"
+            app:exitAnim="@anim/fragment_close_exit">
+            <argument
+                android:name="callId"
+                android:defaultValue="0"
+                app:argType="integer" />
+        </action>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_contacts"
@@ -28,4 +39,14 @@
         android:name="com.rehyapp.calltimer.ui.usage.UsageFragment"
         android:label="@string/title_usage"
         tools:layout="@layout/fragment_usage" />
+    <fragment
+        android:id="@+id/callDetailsFragment"
+        android:name="com.rehyapp.calltimer.ui.callDetails.CallDetailsFragment"
+        android:label="@string/title_call_details"
+        tools:layout="@layout/fragment_call_details">
+        <argument
+            android:name="callId"
+            android:defaultValue="0"
+            app:argType="integer" />
+    </fragment>
 </navigation>

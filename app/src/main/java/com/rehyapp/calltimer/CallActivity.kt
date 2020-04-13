@@ -57,6 +57,7 @@ class CallActivity : AppCompatActivity() {
                     WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
         }
 
+
         number = Objects.requireNonNull(intent.data).schemeSpecificPart
 
         binding.callAnswer.setOnClickListener {
