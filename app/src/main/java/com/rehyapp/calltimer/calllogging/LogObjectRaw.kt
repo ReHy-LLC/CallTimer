@@ -1,6 +1,6 @@
 package com.rehyapp.calltimer.calllogging
 
-data class LogObject(
+data class LogObjectRaw(
     //Added API 1
     var callId: Long = -1,
     var type: Int = -1,

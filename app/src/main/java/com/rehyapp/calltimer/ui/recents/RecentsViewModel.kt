@@ -1,30 +1,32 @@
 package com.rehyapp.calltimer.ui.recents
 
-import androidx.lifecycle.LiveData
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.rehyapp.calltimer.calllogging.LogObject
+import com.rehyapp.calltimer.calllogging.LogManager
+import com.rehyapp.calltimer.calllogging.RecentsUIGroupingsObject
 
-class RecentsViewModel : ViewModel() {
+class RecentsViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object {
         private const val LOG_TAG = "RecentsViewModel"
     }
 
     private var _noPermissionRecentsText = MutableLiveData<String>()
-    var noPermissionRecentsText: LiveData<String> = _noPermissionRecentsText
+    var noPermissionRecentsText: MutableLiveData<String> = _noPermissionRecentsText
 
     private var _noPermissionRecentsLink = MutableLiveData<String>()
-    var noPermissionRecentsLink: LiveData<String> = _noPermissionRecentsLink
+    var noPermissionRecentsLink: MutableLiveData<String> = _noPermissionRecentsLink
 
     fun setTextNoPermissions(newDescValue: String, newLinkValue: String) {
         _noPermissionRecentsText.value = newDescValue
         _noPermissionRecentsLink.value = newLinkValue
     }
 
-    private var _logList = MutableLiveData<MutableList<LogObject>>()
-    var logList: LiveData<MutableList<LogObject>> = _logList
-    fun setLogList(list: MutableList<LogObject>) {
-        _logList.value = list
-    }
+    private var logManager = LogManager(application.applicationContext)
+    val logList: MutableLiveData<MutableList<RecentsUIGroupingsObject>>
+        get() = logManager.convertToRecentsUIGroupings(
+            logManager.getCallLogsAll().asReversed()
+        )
+
 }

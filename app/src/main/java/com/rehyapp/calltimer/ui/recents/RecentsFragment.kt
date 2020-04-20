@@ -12,19 +12,15 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dgreenhalgh.android.simpleitemdecoration.linear.EndOffsetItemDecoration
 import com.dgreenhalgh.android.simpleitemdecoration.linear.StartOffsetItemDecoration
-import com.google.android.material.textview.MaterialTextView
 import com.rehyapp.calltimer.R
 import com.rehyapp.calltimer.calllogging.LogManager
+import com.rehyapp.calltimer.calllogging.RecentsUIGroupingsObject
 import com.rehyapp.calltimer.databinding.FragmentRecentsBinding
-import com.rehyapp.calltimer.extensions.OnItemClickListener
-import com.rehyapp.calltimer.extensions.addOnItemClickListener
-
 
 class RecentsFragment : Fragment() {
 
@@ -57,16 +53,6 @@ class RecentsFragment : Fragment() {
             addItemDecoration(EndOffsetItemDecoration(200))
         }
 
-        binding.recentsRecycler.addOnItemClickListener(object : OnItemClickListener {
-            override fun onItemClicked(position: Int, view: View) {
-                val v = view.findViewById<MaterialTextView>(R.id.log_call_id)
-                val callId = v.text.toString().toInt()
-                val action =
-                    RecentsFragmentDirections.actionNavigationRecentsToCallDetailsFragment(callId)
-                view.findNavController().navigate(action)
-            }
-        })
-
         recentsViewModel.noPermissionRecentsText.observe(viewLifecycleOwner, Observer {
             binding.textRecents.text = it
         })
@@ -76,19 +62,42 @@ class RecentsFragment : Fragment() {
         })
 
         val hasLogPermission = ContextCompat.checkSelfPermission(context!!, Manifest.permission.READ_CALL_LOG)
-        if (hasLogPermission != PackageManager.PERMISSION_GRANTED) {
-            binding.recentsNoPermissionView.visibility = View.VISIBLE
-            binding.recentsView.visibility = View.GONE
-            recentsViewModel.setTextNoPermissions(getString(R.string.recent_no_permission_description_text), getString(R.string.enable))
-            binding.linkRecents.setOnClickListener {
-                requestLogPermission()
-            }
+        if (hasLogPermission == PackageManager.PERMISSION_GRANTED) {
+            recentsViewModel.logList.observe(viewLifecycleOwner, Observer {
+                showCallLog(it)
+            })
         } else {
-            showCallLog()
+            hideRecyclerNoPermission()
         }
 
         return binding.root
     }
+
+    private fun hideRecyclerNoPermission() {
+        binding.recentsNoPermissionView.visibility = View.VISIBLE
+        binding.recentsView.visibility = View.GONE
+        recentsViewModel.setTextNoPermissions(
+            getString(R.string.recent_no_permission_description_text),
+            getString(R.string.enable)
+        )
+        binding.linkRecents.setOnClickListener {
+            requestLogPermission()
+        }
+    }
+
+    private fun hideRecyclerNoLogs() {
+        binding.recentsNoPermissionView.visibility = View.VISIBLE
+        binding.recentsView.visibility = View.GONE
+        recentsViewModel.setTextNoPermissions(
+            getString(R.string.text_no_call_log),
+            getString(R.string.dialer)
+        )
+        binding.linkRecents.setOnClickListener {
+            //TODO: Open dialer from this link
+            Toast.makeText(context, "Will open dialer screen.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     private fun requestLogPermission() {
         ActivityCompat.requestPermissions(activity!!, arrayOf(Manifest.permission.READ_CALL_LOG), REQUEST_CODE_SET_DEFAULT_DIALER)
@@ -98,18 +107,23 @@ class RecentsFragment : Fragment() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_SET_DEFAULT_DIALER) {
             when (grantResults[0]) {
-                PackageManager.PERMISSION_GRANTED -> showCallLog()
+                PackageManager.PERMISSION_GRANTED -> onResume()
                 PackageManager.PERMISSION_DENIED -> Toast.makeText(context,
                     getString(R.string.call_log_denied_toast), Toast.LENGTH_LONG).show()
             }
         }
     }
 
-    private fun showCallLog() {
-        binding.recentsRecycler.invalidate()
-        adapter = RecentsAdapter(logsManager.getCallLogsAll().asReversed())
-        binding.recentsRecycler.swapAdapter(adapter, false)
-        binding.recentsNoPermissionView.visibility = View.GONE
-        binding.recentsView.visibility = View.VISIBLE
+    private fun showCallLog(logList: MutableList<RecentsUIGroupingsObject>) {
+        val canShow = logsManager.canShowCallLogList("")
+        if (canShow) {
+            adapter = RecentsAdapter(logList)
+            binding.recentsRecycler.adapter = adapter
+            binding.recentsNoPermissionView.visibility = View.GONE
+            binding.recentsView.visibility = View.VISIBLE
+        } else {
+            hideRecyclerNoLogs()
+        }
     }
+
 }

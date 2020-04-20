@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.rehyapp.calltimer.databinding.ActivityCallBinding
 import com.rehyapp.calltimer.in_call_utils.Constants.asString
 import com.rehyapp.calltimer.in_call_utils.OngoingCall
+import com.rehyapp.calltimer.ui.recents.RecentsFragment
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import io.reactivex.functions.Predicate
@@ -107,6 +108,7 @@ class CallActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
+        RecentsFragment
         disposables!!.clear()
     }
 

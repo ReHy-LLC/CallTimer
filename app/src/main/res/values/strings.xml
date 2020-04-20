@@ -54,4 +54,13 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_call_details">Call Details</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="call_type_missed">Missed</string>
+    <string name="call_type_outgoing">Outgoing</string>
+    <string name="call_type_incoming_answered">Answered</string>
+    <string name="call_type_answered_externally">Answered on Different Device</string>
+    <string name="call_type_blocked">Blocked</string>
+    <string name="call_type_rejected">Rejected</string>
+    <string name="unknown">Unknown</string>
+    <string name="custom">Custom</string>
 </resources>
