@@ -12,6 +12,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.whenCreated
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,8 +21,8 @@ import com.dgreenhalgh.android.simpleitemdecoration.linear.EndOffsetItemDecorati
 import com.dgreenhalgh.android.simpleitemdecoration.linear.StartOffsetItemDecoration
 import com.rehyapp.calltimer.R
 import com.rehyapp.calltimer.calllogging.LogManager
-import com.rehyapp.calltimer.calllogging.RecentsUIGroupingsObject
 import com.rehyapp.calltimer.databinding.FragmentRecentsBinding
+import kotlinx.coroutines.launch
 
 class RecentsFragment : Fragment() {
 
@@ -34,6 +36,7 @@ class RecentsFragment : Fragment() {
     private lateinit var layoutManager: RecyclerView.LayoutManager
     private lateinit var adapter: RecentsAdapter
     private lateinit var logsManager: LogManager
+    private var isLogVisible = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
@@ -61,16 +64,17 @@ class RecentsFragment : Fragment() {
             binding.linkRecents.text = it
         })
 
+        return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
         val hasLogPermission = ContextCompat.checkSelfPermission(context!!, Manifest.permission.READ_CALL_LOG)
         if (hasLogPermission == PackageManager.PERMISSION_GRANTED) {
-            recentsViewModel.logList.observe(viewLifecycleOwner, Observer {
-                showCallLog(it)
-            })
+            showCallLog()
         } else {
             hideRecyclerNoPermission()
         }
-
-        return binding.root
     }
 
     private fun hideRecyclerNoPermission() {
@@ -114,15 +118,22 @@ class RecentsFragment : Fragment() {
         }
     }
 
-    private fun showCallLog(logList: MutableList<RecentsUIGroupingsObject>) {
-        val canShow = logsManager.canShowCallLogList("")
-        if (canShow) {
-            adapter = RecentsAdapter(logList)
-            binding.recentsRecycler.adapter = adapter
-            binding.recentsNoPermissionView.visibility = View.GONE
-            binding.recentsView.visibility = View.VISIBLE
-        } else {
-            hideRecyclerNoLogs()
+    private fun showCallLog() {
+        lifecycleScope.launch {
+            whenCreated {
+                val canShow = logsManager.canShowCallLogList("")
+                if (canShow) {
+                    adapter =
+                        RecentsAdapter(logsManager.convertToRecentsUIGroupings(logsManager.getCallLogsAll()))
+                    binding.recentsRecycler.adapter = adapter
+                    binding.recentsNoPermissionView.visibility = View.GONE
+                    binding.recentsView.visibility = View.VISIBLE
+                    isLogVisible = true
+                } else {
+                    hideRecyclerNoLogs()
+                    isLogVisible = false
+                }
+            }
         }
     }
 

@@ -3,8 +3,6 @@ package com.rehyapp.calltimer.ui.recents
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.rehyapp.calltimer.calllogging.LogManager
-import com.rehyapp.calltimer.calllogging.RecentsUIGroupingsObject
 
 class RecentsViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -22,11 +20,5 @@ class RecentsViewModel(application: Application) : AndroidViewModel(application)
         _noPermissionRecentsText.value = newDescValue
         _noPermissionRecentsLink.value = newLinkValue
     }
-
-    private var logManager = LogManager(application.applicationContext)
-    val logList: MutableLiveData<MutableList<RecentsUIGroupingsObject>>
-        get() = logManager.convertToRecentsUIGroupings(
-            logManager.getCallLogsAll().asReversed()
-        )
 
 }

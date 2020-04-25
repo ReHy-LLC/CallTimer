@@ -10,6 +10,7 @@ data class RecentsUIGroupingsObject(
     var groupTopTextRed: Boolean? = false,
     var groupNumber: String? = "",
     var groupType: String? = "",
+    var groupCallIds: MutableList<Long> = mutableListOf(),
     var isContact: Boolean? = false,
     var contactId: Long? = 0,
     var contactUri: Uri? = null

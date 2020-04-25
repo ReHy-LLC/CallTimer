@@ -16,7 +16,7 @@ class CallDetailsFragment : Fragment() {
         private const val LOG_TAG = "CallDetailsFragment"
     }
 
-    private var callId: Int? = null
+    private lateinit var callIds: LongArray
     private lateinit var viewModel: CallDetailsViewModel
     private lateinit var binding: FragmentCallDetailsBinding
     private val args: CallDetailsFragmentArgs by navArgs()
@@ -26,11 +26,16 @@ class CallDetailsFragment : Fragment() {
     ): View? {
         binding = FragmentCallDetailsBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this).get(CallDetailsViewModel::class.java)
-        callId = args.callId
+        callIds = args.callIds
         viewModel.text.observe(viewLifecycleOwner, Observer {
             binding.callDetailsText.text = it
         })
-        viewModel.text.value = "This is Call Details Fragment, callId = $callId"
+        var callId = ""
+        for (element in callIds) {
+            callId = callId.plus(element).plus(",")
+        }
+        viewModel.text.value =
+            "This is Call Details Fragment, callId = ${callId.substring(0, callId.length - 1)}"
         return binding.root
     }
 }

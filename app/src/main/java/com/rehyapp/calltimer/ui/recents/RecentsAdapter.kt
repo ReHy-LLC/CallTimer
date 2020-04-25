@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import com.rehyapp.calltimer.R
@@ -27,7 +28,9 @@ class RecentsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         logDayDateTime.text = log.groupTimeDayDate
 
         logInfoIcon.setOnClickListener {
-            //TODO: navigate to call detail screen.
+            val action =
+                RecentsFragmentDirections.actionNavigationRecentsToCallDetailsFragment(log.groupCallIds.toLongArray())
+            it.findNavController().navigate(action)
             Toast.makeText(
                 logTypeImage.context,
                 "Will open call details screen!",

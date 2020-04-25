@@ -13,12 +13,10 @@
         <action
             android:id="@+id/action_navigation_recents_to_callDetailsFragment"
             app:destination="@id/callDetailsFragment"
-            app:enterAnim="@anim/fragment_close_enter"
-            app:exitAnim="@anim/fragment_close_exit">
+            app:enterAnim="@anim/enter_from_right">
             <argument
-                android:name="callId"
-                android:defaultValue="0"
-                app:argType="integer" />
+                android:name="callIds"
+                app:argType="long[]" />
         </action>
     </fragment>
 
@@ -45,8 +43,7 @@
         android:label="@string/title_call_details"
         tools:layout="@layout/fragment_call_details">
         <argument
-            android:name="callId"
-            android:defaultValue="0"
-            app:argType="integer" />
+            android:name="callIds"
+            app:argType="long[]" />
     </fragment>
 </navigation>

@@ -4,6 +4,7 @@ import android.util.Log
 
 object Constants {
 
+    const val BUNDLE_CALL_DETAILS_FRAGMENT = "callIDs"
     private const val LOG_TAG = "CallActivity"
 
     fun asString(data: Int): String {
