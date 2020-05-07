@@ -10,7 +10,6 @@
     <string name="text_no_contacts">You don\'t have any contacts yet</string>
     <string name="text_no_voicemail">Your voice mail inbox is empty</string>
 
-    <string name="dialer">Dialer</string>
     <string name="back">Back</string>
     <string name="call">Call</string>
 
@@ -63,4 +62,12 @@
     <string name="call_type_rejected">Rejected</string>
     <string name="unknown">Unknown</string>
     <string name="custom">Custom</string>
+    <string name="all">All</string>
+    <string name="edit">Edit</string>
+    <string name="clear">Clear</string>
+    <string name="title_dialer">Dialer</string>
+    <string name="dialer">Dialer</string>
+    <string name="video">Video</string>
+    <string name="cancel">Cancel</string>
+    <string name="clear_all">Clear All</string>
 </resources>

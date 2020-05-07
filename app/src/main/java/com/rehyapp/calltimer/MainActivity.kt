@@ -9,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.telecom.TelecomManager
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -60,16 +59,14 @@ class MainActivity : AppCompatActivity() {
     private fun checkDefaultDialer() {
         val telecomManager = getSystemService(TELECOM_SERVICE) as TelecomManager
         val isAlreadyDefaultDialer = packageName == telecomManager.defaultDialerPackage
-        if (isAlreadyDefaultDialer) {
-            binding.dialFab.visibility = View.VISIBLE
-            return
-        }
-
-        Snackbar.make(findViewById(android.R.id.content),
+        if (!isAlreadyDefaultDialer) {
+            Snackbar.make(
+                findViewById(android.R.id.content),
                 getString(R.string.snack_text_permissions), Snackbar.LENGTH_INDEFINITE)
-            .setAction(getString(R.string.grant)) {
-                requestDialerRole()
-            }.show()
+                .setAction(getString(R.string.grant)) {
+                    requestDialerRole()
+                }.show()
+        }
     }
 
     private fun requestDialerRole() {
@@ -88,7 +85,6 @@ class MainActivity : AppCompatActivity() {
         var message = getString(R.string.toast_accepted)
         when (resultCode) {
             RESULT_OK       -> {
-                binding.dialFab.visibility = View.VISIBLE
                 if (!hasCallLogPermission() || !hasContactsPermission() || !hasMakeCallPermission()
                     || !hasVibratePermission() || !hasWriteCallLogPermission()) {
                     ActivityCompat.requestPermissions(

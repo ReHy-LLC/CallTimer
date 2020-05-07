@@ -9,71 +9,127 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.whenCreated
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.dgreenhalgh.android.simpleitemdecoration.linear.EndOffsetItemDecoration
-import com.dgreenhalgh.android.simpleitemdecoration.linear.StartOffsetItemDecoration
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.rehyapp.calltimer.R
-import com.rehyapp.calltimer.calllogging.LogManager
+import com.rehyapp.calltimer.databinding.BottomSheetRecentsBinding
 import com.rehyapp.calltimer.databinding.FragmentRecentsBinding
-import kotlinx.coroutines.launch
+import com.rehyapp.calltimer.ui.SwipeToDeleteCallback
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RecentsFragment : Fragment() {
 
     companion object {
         private const val LOG_TAG = "RecentsFragment"
         private const val REQUEST_CODE_SET_DEFAULT_DIALER = 36
+        private const val ITEM_VIEW_TYPE_HEADER = 0
+        private const val ITEM_VIEW_TYPE_ITEM = 1
     }
 
-    private lateinit var recentsViewModel: RecentsViewModel
+    //koin dependency injected ViewModel
+    private val recentsViewModel by viewModel<RecentsViewModel>()
+
+    //init in onCreateView
     private lateinit var binding: FragmentRecentsBinding
-    private lateinit var layoutManager: RecyclerView.LayoutManager
-    private lateinit var adapter: RecentsAdapter
-    private lateinit var logsManager: LogManager
-    private var isLogVisible = false
+
+    //create adapter
+    private val recentsAdapter = RecentsAdapter()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
-        recentsViewModel = ViewModelProvider(this).get(RecentsViewModel::class.java)
-        binding = FragmentRecentsBinding.inflate(inflater, container, false)
+        //inflate layout and set binding
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_recents, container, false)
 
-        logsManager = LogManager(context!!)
-        layoutManager = LinearLayoutManager(context)
-        binding.recentsRecycler.layoutManager = layoutManager
+        //set data binding vars
+        binding.viewModel = recentsViewModel
+        binding.adapter = recentsAdapter
+        binding.lifecycleOwner = this
 
+        //create recycler divider decorator
         val dividerItemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
-        dividerItemDecoration.setDrawable(ContextCompat.getDrawable(context!!, R.drawable.divider)!!)
 
-        binding.recentsRecycler.apply {
-            addItemDecoration(dividerItemDecoration)
-            addItemDecoration(StartOffsetItemDecoration(20))
-            addItemDecoration(EndOffsetItemDecoration(200))
+        //set divider drawable as divider decorator drawable
+        dividerItemDecoration.setDrawable(
+            ContextCompat.getDrawable(
+                requireContext(),
+                R.drawable.divider
+            )!!
+        )
+
+        //add divider to recycler
+        binding.recentsRecycler.addItemDecoration(dividerItemDecoration)
+
+        //observe log fetch from viewModel
+        recentsViewModel.logData.observe(viewLifecycleOwner, Observer {
+            it.let(recentsAdapter::submitList)
+        })
+
+        showRecycler()
+
+        binding.recentsRecyclerSwitch.addOnButtonCheckedListener { group, checkedId, isChecked ->
+            if (isChecked && checkedId == R.id.btnAll) {
+                recentsViewModel.showAllLogs()
+            } else if (!isChecked && checkedId == R.id.btnAll) {
+                group.check(R.id.btnMissed)
+            } else if (isChecked && checkedId == R.id.btnMissed) {
+                recentsViewModel.showMissedLogs()
+            } else if (!isChecked && checkedId == R.id.btnMissed) {
+                group.check(R.id.btnAll)
+            }
         }
 
-        recentsViewModel.noPermissionRecentsText.observe(viewLifecycleOwner, Observer {
-            binding.textRecents.text = it
+        val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                if (viewHolder.itemViewType != ITEM_VIEW_TYPE_HEADER) {
+                    recentsViewModel.logData.value!!.removeAt(viewHolder.adapterPosition)
+                    recentsAdapter.notifyItemRemoved(viewHolder.adapterPosition)
+                    val recentHolder: RecentsAdapter.RecentsViewHolder =
+                        viewHolder as RecentsAdapter.RecentsViewHolder
+                    recentsViewModel.deleteLogFromRecentsObject(recentHolder.getRecentGroupLog())
+                }
+            }
+        }
+
+        binding.recentsRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val manager = recyclerView.layoutManager as LinearLayoutManager
+                if (manager.findFirstVisibleItemPosition() > 0) {
+                    binding.recentRecyclerSwitchDivider.visibility = View.VISIBLE
+                } else {
+                    binding.recentRecyclerSwitchDivider.visibility = View.GONE
+                }
+            }
         })
 
-        recentsViewModel.noPermissionRecentsLink.observe(viewLifecycleOwner, Observer {
-            binding.linkRecents.text = it
-        })
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+        itemTouchHelper.attachToRecyclerView(binding.recentsRecycler)
 
+        binding.recentsRecyclerLink.setOnClickListener { showBottomSheet(container) }
+
+        //return root view of binding
         return binding.root
     }
 
     override fun onResume() {
         super.onResume()
-        val hasLogPermission = ContextCompat.checkSelfPermission(context!!, Manifest.permission.READ_CALL_LOG)
-        if (hasLogPermission == PackageManager.PERMISSION_GRANTED) {
-            showCallLog()
-        } else {
+        val hasLogPermission =
+            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CALL_LOG)
+        if (hasLogPermission != PackageManager.PERMISSION_GRANTED) {
             hideRecyclerNoPermission()
+        } else {
+            showRecycler()
+            when (binding.recentsRecyclerSwitch.checkedButtonId) {
+                R.id.btnAll -> recentsViewModel.showAllLogs()
+                R.id.btnMissed -> recentsViewModel.showMissedLogs()
+            }
         }
     }
 
@@ -102,9 +158,28 @@ class RecentsFragment : Fragment() {
         }
     }
 
+    private fun showRecycler() {
+        binding.recentsNoPermissionView.visibility = View.GONE
+        binding.recentsView.visibility = View.VISIBLE
+    }
+
+    private fun showBottomSheet(viewGroup: ViewGroup?) {
+        val bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_recents, null)
+        val bottomSheetBinding: BottomSheetRecentsBinding =
+            DataBindingUtil.inflate(layoutInflater, R.layout.bottom_sheet_recents, viewGroup, false)
+        bottomSheetBinding.viewModel = recentsViewModel
+
+        val bottomSheetDialog = BottomSheetDialog(requireContext())
+        bottomSheetDialog.setContentView(bottomSheetView)
+        bottomSheetDialog.show()
+    }
 
     private fun requestLogPermission() {
-        ActivityCompat.requestPermissions(activity!!, arrayOf(Manifest.permission.READ_CALL_LOG), REQUEST_CODE_SET_DEFAULT_DIALER)
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(Manifest.permission.READ_CALL_LOG),
+            REQUEST_CODE_SET_DEFAULT_DIALER
+        )
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -114,25 +189,6 @@ class RecentsFragment : Fragment() {
                 PackageManager.PERMISSION_GRANTED -> onResume()
                 PackageManager.PERMISSION_DENIED -> Toast.makeText(context,
                     getString(R.string.call_log_denied_toast), Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    private fun showCallLog() {
-        lifecycleScope.launch {
-            whenCreated {
-                val canShow = logsManager.canShowCallLogList("")
-                if (canShow) {
-                    adapter =
-                        RecentsAdapter(logsManager.convertToRecentsUIGroupings(logsManager.getCallLogsAll()))
-                    binding.recentsRecycler.adapter = adapter
-                    binding.recentsNoPermissionView.visibility = View.GONE
-                    binding.recentsView.visibility = View.VISIBLE
-                    isLogVisible = true
-                } else {
-                    hideRecyclerNoLogs()
-                    isLogVisible = false
-                }
             }
         }
     }

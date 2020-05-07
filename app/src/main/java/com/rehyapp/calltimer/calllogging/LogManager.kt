@@ -9,7 +9,7 @@ import android.provider.CallLog
 import android.provider.ContactsContract
 import android.telephony.PhoneNumberUtils
 import android.text.TextUtils
-import androidx.loader.content.CursorLoader
+import android.util.Log
 import com.rehyapp.calltimer.R
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -22,23 +22,22 @@ class LogManager(_context: Context) {
     private var context: Context = _context
     private var logTag = "LogManager"
 
-    fun getCallById(callId: Int): LogObjectRaw {
+    suspend fun getCallById(callId: Int): LogObjectRaw {
 
         val logObject: LogObjectRaw
         var cursor: Cursor? = null
         val selection = CallLog.Calls._ID + " = " + callId
 
         try {
-            cursor = CursorLoader(
-                context,
+            cursor = context.contentResolver.query(
                 CallLog.Calls.CONTENT_URI,
                 null,
                 selection,
                 null,
                 null
-            ).loadInBackground()!!
+            )
 
-            logObject = createRawLogObjectFromCursor(cursor)
+            logObject = createRawLogObjectFromCursor(cursor!!)
         } finally {
             cursor?.close()
         }
@@ -46,7 +45,7 @@ class LogManager(_context: Context) {
 
     }
 
-    fun getCallsLogsByType(callType: Int): List<LogObjectRaw> {
+    suspend fun getCallsLogsByType(callType: Int): MutableList<LogObjectRaw> {
 
         val selection = CallLog.Calls.TYPE + " = " + callType
 
@@ -54,14 +53,30 @@ class LogManager(_context: Context) {
 
     }
 
-    fun getCallLogsAll(): MutableList<LogObjectRaw> {
+    suspend fun getCallLogsAll(): MutableList<LogObjectRaw> {
 
         //empty selection to get unfiltered call log list
         return getCallLogList("")
 
     }
 
-    fun canShowCallLogList(selection: String): Boolean {
+    suspend fun deleteLogFromRecentsObject(recentsUIGroupingsObject: RecentsUIGroupingsObject) {
+
+        Log.e(logTag, "Size = " + recentsUIGroupingsObject.groupCallIds.size)
+
+        recentsUIGroupingsObject.groupCallIds.forEach {
+            context.contentResolver.apply {
+                delete(
+                    CallLog.Calls.CONTENT_URI,
+                    CallLog.Calls._ID.plus("=?"),
+                    arrayOf(it.toString())
+                )
+            }
+        }
+
+    }
+
+    suspend fun canShowCallLogList(selection: String): Boolean {
 
         var canShow = false
 
@@ -69,16 +84,15 @@ class LogManager(_context: Context) {
 
         try {
 
-            cursor = CursorLoader(
-                context,
+            cursor = context.contentResolver.query(
                 CallLog.Calls.CONTENT_URI,
                 null,
                 selection,
                 null,
                 null
-            ).loadInBackground()!!
+            )
 
-            cursor.moveToFirst()
+            cursor!!.moveToFirst()
 
             if (cursor.count > 0) {
                 canShow = true
@@ -91,22 +105,21 @@ class LogManager(_context: Context) {
         return canShow
     }
 
-    private fun getCallLogList(selection: String): MutableList<LogObjectRaw> {
+    private suspend fun getCallLogList(selection: String): MutableList<LogObjectRaw> {
 
         var cursor: Cursor? = null
         val logList = mutableListOf<LogObjectRaw>()
 
         try {
-            cursor = CursorLoader(
-                context,
+            cursor = context.contentResolver.query(
                 CallLog.Calls.CONTENT_URI,
                 null,
                 selection,
                 null,
                 null
-            ).loadInBackground()!!
+            )
 
-            if (cursor.count > 0) {
+            if (cursor!!.count > 0) {
                 while (cursor.moveToNext()) {
                     val logObject = createRawLogObjectFromCursor(cursor)
                     logList.add(logObject)
@@ -116,11 +129,11 @@ class LogManager(_context: Context) {
             cursor?.close()
         }
 
-        return logList
+        return logList.asReversed()
 
     }
 
-    private fun createRawLogObjectFromCursor(cursor: Cursor): LogObjectRaw {
+    private suspend fun createRawLogObjectFromCursor(cursor: Cursor): LogObjectRaw {
         val logObject = LogObjectRaw()
 
         //Min SDK is 23 so always set values for everything up to API 23
@@ -141,6 +154,7 @@ class LogManager(_context: Context) {
             cursor.getString(cursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_COMPONENT_NAME))
         logObject.phoneAccountId =
             cursor.getString(cursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID))
+        logObject.features = cursor.getInt(cursor.getColumnIndex(CallLog.Calls.FEATURES))
 
         //Only pull if SDK >= 24, fields didn't exist until API 24.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -161,15 +175,34 @@ class LogManager(_context: Context) {
         return logObject
     }
 
-    fun convertToRecentsUIGroupings(rawLogList: MutableList<LogObjectRaw>): MutableList<RecentsUIGroupingsObject> {
-
-        //return empty group list if raw list was empty
-        if (rawLogList.isNullOrEmpty()) {
-            return mutableListOf()
-        }
+    suspend fun convertToRecentsUIGroupings(rawLogList: MutableList<LogObjectRaw>): MutableList<RecentsUIGroupingsObject> {
 
         //empty group list to add to as we loop raw list
         val recentsUIGroupedList = mutableListOf<RecentsUIGroupingsObject>()
+
+        //create header group
+        val headerGrouping = RecentsUIGroupingsObject(
+            "",
+            0,
+            context.getString(R.string.title_recents),
+            "",
+            false,
+            "",
+            "",
+            mutableListOf(),
+            true,
+            false,
+            0,
+            null
+        )
+
+        //add header to list
+        recentsUIGroupedList.add(headerGrouping)
+
+        //if no items then just return header
+        if (rawLogList.isNullOrEmpty()) {
+            return recentsUIGroupedList
+        }
 
         //need this to compare if call is on same day (we only group if same day)
         val dateFormat: DateFormat =
@@ -293,10 +326,6 @@ class LogManager(_context: Context) {
                     TextUtils.equals(
                         dateFormat.format(Date(newGroupDate)),
                         dateFormat.format(Date(today - (day * 6)))
-                    ) ||
-                    TextUtils.equals(
-                        dateFormat.format(Date(newGroupDate)),
-                        dateFormat.format(Date(today - (day * 7)))
                     )
                 ) {
 
@@ -391,45 +420,56 @@ class LogManager(_context: Context) {
 
                 }
 
+                Log.e(logTag, "features = ${rawLogObject.features}")
                 //set drawable id number, group type and topTextRed based on call type
-                when (newGroupType) {
-                    CallLog.Calls.MISSED_TYPE -> {
-                        recentsObject.groupIconDrawableId =
-                            R.drawable.ic_phone_incoming_missed
-                        recentsObject.groupType =
-                            context.getString(R.string.call_type_missed)
+                if (rawLogObject.features == CallLog.Calls.FEATURES_VIDEO) {
+                    recentsObject.groupType = context.getString(R.string.video)
+                    if (CallLog.Calls.MISSED_TYPE == rawLogObject.type) {
                         recentsObject.groupTopTextRed = true
+                        recentsObject.groupIconDrawableId = R.drawable.ic_video_red
+                    } else {
+                        recentsObject.groupIconDrawableId = R.drawable.ic_video
                     }
-                    CallLog.Calls.OUTGOING_TYPE -> {
-                        recentsObject.groupIconDrawableId = R.drawable.ic_phone_outgoing
-                        recentsObject.groupType =
-                            context.getString(R.string.call_type_outgoing)
-                        recentsObject.groupTopTextRed = false
-                    }
-                    CallLog.Calls.INCOMING_TYPE -> {
-                        recentsObject.groupIconDrawableId =
-                            R.drawable.ic_phone_incoming_answered
-                        recentsObject.groupType =
-                            context.getString(R.string.call_type_incoming_answered)
-                        recentsObject.groupTopTextRed = false
-                    }
-                    CallLog.Calls.ANSWERED_EXTERNALLY_TYPE -> {
-                        recentsObject.groupIconDrawableId = R.drawable.ic_phone_incoming
-                        recentsObject.groupType =
-                            context.getString(R.string.call_type_answered_externally)
-                        recentsObject.groupTopTextRed = false
-                    }
-                    CallLog.Calls.BLOCKED_TYPE -> {
-                        recentsObject.groupIconDrawableId = R.drawable.ic_phone_blocked
-                        recentsObject.groupType =
-                            context.getString(R.string.call_type_blocked)
-                        recentsObject.groupTopTextRed = false
-                    }
-                    CallLog.Calls.REJECTED_TYPE -> {
-                        recentsObject.groupIconDrawableId = R.drawable.ic_phone_rejected
-                        recentsObject.groupType =
-                            context.getString(R.string.call_type_rejected)
-                        recentsObject.groupTopTextRed = true
+                } else {
+                    when (newGroupType) {
+                        CallLog.Calls.MISSED_TYPE -> {
+                            recentsObject.groupIconDrawableId =
+                                R.drawable.ic_phone_incoming_missed
+                            recentsObject.groupType =
+                                context.getString(R.string.call_type_missed)
+                            recentsObject.groupTopTextRed = true
+                        }
+                        CallLog.Calls.OUTGOING_TYPE -> {
+                            recentsObject.groupIconDrawableId = R.drawable.ic_phone_outgoing
+                            recentsObject.groupType =
+                                context.getString(R.string.call_type_outgoing)
+                            recentsObject.groupTopTextRed = false
+                        }
+                        CallLog.Calls.INCOMING_TYPE -> {
+                            recentsObject.groupIconDrawableId =
+                                R.drawable.ic_phone_incoming_answered
+                            recentsObject.groupType =
+                                context.getString(R.string.call_type_incoming_answered)
+                            recentsObject.groupTopTextRed = false
+                        }
+                        CallLog.Calls.ANSWERED_EXTERNALLY_TYPE -> {
+                            recentsObject.groupIconDrawableId = R.drawable.ic_phone_incoming
+                            recentsObject.groupType =
+                                context.getString(R.string.call_type_answered_externally)
+                            recentsObject.groupTopTextRed = false
+                        }
+                        CallLog.Calls.BLOCKED_TYPE -> {
+                            recentsObject.groupIconDrawableId = R.drawable.ic_phone_blocked
+                            recentsObject.groupType =
+                                context.getString(R.string.call_type_blocked)
+                            recentsObject.groupTopTextRed = false
+                        }
+                        CallLog.Calls.REJECTED_TYPE -> {
+                            recentsObject.groupIconDrawableId = R.drawable.ic_phone_rejected
+                            recentsObject.groupType =
+                                context.getString(R.string.call_type_rejected)
+                            recentsObject.groupTopTextRed = true
+                        }
                     }
                 }
 
@@ -489,10 +529,6 @@ class LogManager(_context: Context) {
                     TextUtils.equals(
                         dateFormat.format(Date(newGroupDate)),
                         dateFormat.format(Date(today - (day * 6)))
-                    ) ||
-                    TextUtils.equals(
-                        dateFormat.format(Date(newGroupDate)),
-                        dateFormat.format(Date(today - (day * 7)))
                     )
                 ) {
 
@@ -520,10 +556,10 @@ class LogManager(_context: Context) {
             }
         }
 
-        return recentsUIGroupedList.asReversed()
+        return recentsUIGroupedList
     }
 
-    private fun getContactCursorByNumber(number: String): Cursor {
+    private suspend fun getContactCursorByNumber(number: String): Cursor {
 
         val projection = arrayOf(
             ContactsContract.PhoneLookup._ID,
@@ -533,8 +569,7 @@ class LogManager(_context: Context) {
             ContactsContract.PhoneLookup.TYPE
         )
 
-        return CursorLoader(
-            context,
+        return context.contentResolver.query(
             Uri.withAppendedPath(
                 ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
                 Uri.encode(number)
@@ -543,8 +578,12 @@ class LogManager(_context: Context) {
             null,
             null,
             null
-        ).loadInBackground()!!
+        )!!
 
+    }
+
+    suspend fun deleteAllCallLogs() {
+        context.contentResolver.delete(CallLog.Calls.CONTENT_URI, null, null)
     }
 
 }

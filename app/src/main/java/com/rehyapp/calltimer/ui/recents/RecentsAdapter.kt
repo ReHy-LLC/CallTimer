@@ -1,64 +1,125 @@
 package com.rehyapp.calltimer.ui.recents
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.appcompat.widget.AppCompatImageView
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.textview.MaterialTextView
-import com.rehyapp.calltimer.R
 import com.rehyapp.calltimer.calllogging.RecentsUIGroupingsObject
+import com.rehyapp.calltimer.databinding.HeaderRowBinding
+import com.rehyapp.calltimer.databinding.RecentsItemBinding
+
+private const val ITEM_VIEW_TYPE_HEADER = 0
+private const val ITEM_VIEW_TYPE_ITEM = 1
 
 @SuppressLint("MissingPermission")
-class RecentsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+class RecentsAdapter : ListAdapter<RecentsUIGroupingsObject, RecyclerView.ViewHolder>(Companion) {
 
-    private var logTypeImage: AppCompatImageView = itemView.findViewById(R.id.log_type_image)
-    private var logTopText: MaterialTextView = itemView.findViewById(R.id.log_top_text)
-    private var logBottomText: MaterialTextView = itemView.findViewById(R.id.log_bottom_text)
-    private var logDayDateTime: MaterialTextView = itemView.findViewById(R.id.log_day_date_time)
-    private var logInfoIcon: AppCompatImageView = itemView.findViewById(R.id.log_info_icon)
+    init {
+        setHasStableIds(true)
+    }
 
-    fun bind(log: RecentsUIGroupingsObject) {
+    class RecentsViewHolder(private val recentBinding: RecentsItemBinding) :
+        RecyclerView.ViewHolder(recentBinding.root) {
 
-        logTopText.text = log.groupTopText
-        logBottomText.text = log.groupBottomText
-        logDayDateTime.text = log.groupTimeDayDate
-
-        logInfoIcon.setOnClickListener {
-            val action =
-                RecentsFragmentDirections.actionNavigationRecentsToCallDetailsFragment(log.groupCallIds.toLongArray())
-            it.findNavController().navigate(action)
-            Toast.makeText(
-                logTypeImage.context,
-                "Will open call details screen!",
-                Toast.LENGTH_SHORT
-            ).show()
+        fun bindLog(log: RecentsUIGroupingsObject) {
+            recentBinding.log = log
+            recentBinding.executePendingBindings()
+            itemView.setOnClickListener {
+                val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:".plus(log.groupNumber)))
+                it.context.startActivity(intent)
+            }
+            recentBinding.logInfoIcon.setOnClickListener {
+                val action =
+                    RecentsFragmentDirections.actionNavigationRecentsToCallDetailsFragment(log.groupCallIds.toLongArray())
+                it.findNavController().navigate(action)
+            }
         }
 
-        logTypeImage.setImageResource(log.groupIconDrawableId)
+        fun getRecentGroupLog(): RecentsUIGroupingsObject {
+            return recentBinding.log!!
+        }
 
-        if (log.groupTopTextRed == true) {
-            logTopText.setTextColor(logTypeImage.context.getColor(android.R.color.holo_red_dark))
+        companion object {
+            fun from(parent: ViewGroup): RecentsViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = RecentsItemBinding.inflate(layoutInflater)
+                return RecentsViewHolder(binding)
+            }
+        }
+    }
+
+    class HeaderViewHolder(private val headerBinding: HeaderRowBinding) :
+        RecyclerView.ViewHolder(headerBinding.root) {
+
+        fun bindHeader(log: RecentsUIGroupingsObject) {
+            headerBinding.log = log
+            headerBinding.executePendingBindings()
+        }
+
+        companion object {
+            fun from(parent: ViewGroup): HeaderViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = HeaderRowBinding.inflate(layoutInflater)
+                return HeaderViewHolder(binding)
+            }
+        }
+    }
+
+    companion object : DiffUtil.ItemCallback<RecentsUIGroupingsObject>() {
+        override fun areItemsTheSame(
+            oldItem: RecentsUIGroupingsObject,
+            newItem: RecentsUIGroupingsObject
+        ): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areContentsTheSame(
+            oldItem: RecentsUIGroupingsObject,
+            newItem: RecentsUIGroupingsObject
+        ): Boolean {
+            return oldItem.groupCallIds.toString() == newItem.groupCallIds.toString()
+        }
+
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        val item = getItem(position)
+
+        return if (item.groupIsHeader == true) {
+            ITEM_VIEW_TYPE_HEADER
         } else {
-            logTopText.setTextColor(logTypeImage.context.getColor(android.R.color.black))
+            ITEM_VIEW_TYPE_ITEM
         }
-
-    }
-}
-
-class RecentsAdapter(private val logs: MutableList<RecentsUIGroupingsObject>) :
-    RecyclerView.Adapter<RecentsViewHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = RecentsViewHolder (
-        LayoutInflater.from(parent.context).inflate(R.layout.recents_item, parent, false))
-
-    override fun getItemCount() = logs.size
-
-    override fun onBindViewHolder(holder: RecentsViewHolder, position: Int) {
-        holder.bind(logs[position])
     }
 
+    override fun getItemCount(): Int = currentList.size
+
+    override fun getItemId(position: Int): Long = position.toLong()
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            ITEM_VIEW_TYPE_HEADER -> HeaderViewHolder.from(parent)
+            ITEM_VIEW_TYPE_ITEM -> RecentsViewHolder.from(parent)
+            else -> throw ClassCastException("Unknown viewType $viewType")
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val currentLog = getItem(position)
+        when (holder.itemViewType) {
+            ITEM_VIEW_TYPE_HEADER -> {
+                val headerHolder: HeaderViewHolder = holder as HeaderViewHolder
+                headerHolder.bindHeader(currentLog)
+            }
+            ITEM_VIEW_TYPE_ITEM -> {
+                val recentsHolder: RecentsViewHolder = holder as RecentsViewHolder
+                recentsHolder.bindLog(currentLog)
+            }
+        }
+    }
 }

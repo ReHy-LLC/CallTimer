@@ -15,18 +15,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/dial_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/nav_view"
-        app:layout_constraintRight_toRightOf="parent"
-        android:src="@drawable/ic_dialpad"
-        android:contentDescription="@string/dialer"
-        android:layout_margin="16dp"
-        android:visibility="gone"/>
 
     <fragment
         android:id="@+id/nav_host_fragment"

@@ -11,6 +11,7 @@ data class RecentsUIGroupingsObject(
     var groupNumber: String? = "",
     var groupType: String? = "",
     var groupCallIds: MutableList<Long> = mutableListOf(),
+    var groupIsHeader: Boolean? = false,
     var isContact: Boolean? = false,
     var contactId: Long? = 0,
     var contactUri: Uri? = null

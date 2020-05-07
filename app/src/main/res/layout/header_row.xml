@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="log"
+            type="com.rehyapp.calltimer.calllogging.RecentsUIGroupingsObject" />
+    </data>
+
+    <com.google.android.material.circularreveal.CircularRevealFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.circularreveal.CircularRevealRelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="60dp"
+                android:gravity="center_vertical"
+                android:text="@{log.groupTopText}"
+                android:textAppearance="@android:style/TextAppearance.Material.Display1"
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
+
+        </com.google.android.material.circularreveal.CircularRevealRelativeLayout>
+
+    </com.google.android.material.circularreveal.CircularRevealFrameLayout>
+
+</layout>

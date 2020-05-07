@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@id/navigation_recents">
+    app:startDestination="@id/navigation_dialer">
 
     <fragment
         android:id="@+id/navigation_recents"
@@ -33,10 +33,10 @@
         tools:layout="@layout/fragment_timer" />
 
     <fragment
-        android:id="@+id/navigation_usage"
-        android:name="com.rehyapp.calltimer.ui.usage.UsageFragment"
-        android:label="@string/title_usage"
-        tools:layout="@layout/fragment_usage" />
+        android:id="@+id/navigation_dialer"
+        android:name="com.rehyapp.calltimer.ui.dialer.DialerFragment"
+        android:label="@string/title_dialer"
+        tools:layout="@layout/fragment_dialer" />
     <fragment
         android:id="@+id/callDetailsFragment"
         android:name="com.rehyapp.calltimer.ui.callDetails.CallDetailsFragment"
