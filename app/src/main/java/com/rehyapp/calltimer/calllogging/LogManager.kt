@@ -9,7 +9,6 @@ import android.provider.CallLog
 import android.provider.ContactsContract
 import android.telephony.PhoneNumberUtils
 import android.text.TextUtils
-import android.util.Log
 import com.rehyapp.calltimer.R
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -61,9 +60,6 @@ class LogManager(_context: Context) {
     }
 
     suspend fun deleteLogFromRecentsObject(recentsUIGroupingsObject: RecentsUIGroupingsObject) {
-
-        Log.e(logTag, "Size = " + recentsUIGroupingsObject.groupCallIds.size)
-
         recentsUIGroupingsObject.groupCallIds.forEach {
             context.contentResolver.apply {
                 delete(
@@ -420,7 +416,6 @@ class LogManager(_context: Context) {
 
                 }
 
-                Log.e(logTag, "features = ${rawLogObject.features}")
                 //set drawable id number, group type and topTextRed based on call type
                 if (rawLogObject.features == CallLog.Calls.FEATURES_VIDEO) {
                     recentsObject.groupType = context.getString(R.string.video)

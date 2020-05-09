@@ -13,9 +13,6 @@ import com.rehyapp.calltimer.calllogging.RecentsUIGroupingsObject
 import com.rehyapp.calltimer.databinding.HeaderRowBinding
 import com.rehyapp.calltimer.databinding.RecentsItemBinding
 
-private const val ITEM_VIEW_TYPE_HEADER = 0
-private const val ITEM_VIEW_TYPE_ITEM = 1
-
 @SuppressLint("MissingPermission")
 class RecentsAdapter : ListAdapter<RecentsUIGroupingsObject, RecyclerView.ViewHolder>(Companion) {
 
@@ -71,6 +68,8 @@ class RecentsAdapter : ListAdapter<RecentsUIGroupingsObject, RecyclerView.ViewHo
     }
 
     companion object : DiffUtil.ItemCallback<RecentsUIGroupingsObject>() {
+        const val ITEM_VIEW_TYPE_HEADER = 0
+        const val ITEM_VIEW_TYPE_ITEM = 1
         override fun areItemsTheSame(
             oldItem: RecentsUIGroupingsObject,
             newItem: RecentsUIGroupingsObject

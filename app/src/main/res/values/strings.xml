@@ -70,4 +70,21 @@
     <string name="video">Video</string>
     <string name="cancel">Cancel</string>
     <string name="clear_all">Clear All</string>
+    <string name="permission_title_make_calls">Make Calls</string>
+    <string name="permission_title_read_write_call_log">Read and Write Call log</string>
+    <string name="permission_title_read_write_contacts">Read Write Contacts</string>
+    <string name="permission_rationale_make_calls">In order for this app to replace your default dialer it needs permission to make calls.</string>
+    <string name="permission_rationale_read_write_contacts">In order for this app to read your call logs properly it needs to be able to read your contacts.</string>
+    <string name="permission_rationale_read_write_call_logs">In order for this app to replace your default dialer it needs permission to read and write call logs.</string>
+    <string name="permission_rationale_calls_call_logs_contacts">In order for this app to replace your default dialer it needs permission to place calls, read and write call logs and read and write contacts.</string>
+    <string name="settings">Settings</string>
+    <string name="retry">Retry?</string>
+    <string name="retry_business">The permission request was interrupted, try again?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="permission_permanent_denial_make_calls">Permission to make calls was permanently denied. You must enable this permission in settings.</string>
+    <string name="permission_permanent_denial_read_write_call_logs">Permission to read or write call logs was permanently denied. You must enable this permission in settings.</string>
+    <string name="permission_permanent_denial_read_write_contacts">Permission to read or write contacts was permanently denied. You must enable this permission in settings.</string>
+    <string name="permission_permanent_denial_calls_call_logs_contacts">Permission to place calls, read or write contacts or call logs was permanently denied. You must enable this permission in settings.</string>
+    <string name="permission_title_calls_call_logs_contacts">Place calls, Read Call Logs, and Read Contacts</string>
 </resources>

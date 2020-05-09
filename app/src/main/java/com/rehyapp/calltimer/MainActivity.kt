@@ -1,17 +1,12 @@
 package com.rehyapp.calltimer
 
-import android.Manifest
 import android.app.role.RoleManager
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.telecom.TelecomManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -23,7 +18,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_CODE_SET_DEFAULT_DIALER = 3644
-        private const val REQUEST_CODE_PERMISSIONS_ALL = 11
         private const val LOG_TAG = "ActivityMain"
     }
 
@@ -31,16 +25,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val navView: BottomNavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        /*val appBarConfiguration = AppBarConfiguration(setOf(
-                R.id.navigation_recents, R.id.navigation_contacts,
-                R.id.navigation_timer, R.id.navigation_usage))
-        setupActionBarWithNavController(navController, appBarConfiguration)*/
         navView.setupWithNavController(navController)
     }
 
@@ -82,105 +71,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkSetDefaultDialerResult(resultCode: Int) {
-        var message = getString(R.string.toast_accepted)
-        when (resultCode) {
-            RESULT_OK       -> {
-                if (!hasCallLogPermission() || !hasContactsPermission() || !hasMakeCallPermission()
-                    || !hasVibratePermission() || !hasWriteCallLogPermission()) {
-                    ActivityCompat.requestPermissions(
-                        this
-                        , arrayOf(
-                            Manifest.permission.READ_CALL_LOG
-                            , Manifest.permission.WRITE_CALL_LOG
-                            , Manifest.permission.CALL_PHONE
-                            , Manifest.permission.VIBRATE
-                            , Manifest.permission.READ_CONTACTS
-                        ), REQUEST_CODE_PERMISSIONS_ALL
-                    )
-                }
-            }
-            RESULT_CANCELED -> message = getString(R.string.toast_declined)
-            else            -> message = "Unexpected result code $resultCode"
+        val message = when (resultCode) {
+            RESULT_OK -> getString(R.string.toast_accepted)
+            RESULT_CANCELED -> getString(R.string.toast_declined)
+            else -> "Unexpected result code $resultCode"
         }
 
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun hasContactsPermission(): Boolean {
-        return ActivityCompat.checkSelfPermission(
-            applicationContext,
-            Manifest.permission.READ_CONTACTS
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun hasCallLogPermission(): Boolean {
-        return ActivityCompat.checkSelfPermission(
-            applicationContext,
-            Manifest.permission.READ_CALL_LOG
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun hasWriteCallLogPermission(): Boolean {
-        return ActivityCompat.checkSelfPermission(
-            applicationContext,
-            Manifest.permission.WRITE_CALL_LOG
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun hasVibratePermission(): Boolean {
-        return ActivityCompat.checkSelfPermission(
-            applicationContext,
-            Manifest.permission.VIBRATE
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun hasMakeCallPermission(): Boolean {
-        return ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            REQUEST_CODE_PERMISSIONS_ALL -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                ) {
-                    Toast.makeText(
-                        applicationContext, "Thanks for permission!"
-                        , Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    when {
-                        ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CALL_PHONE) -> {
-                            Toast.makeText(applicationContext, getString(R.string.toast_declined_call_permission), Toast.LENGTH_LONG).show()
-                        }
-                        ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CALL_LOG) -> {
-                            Toast.makeText(applicationContext, getString(R.string.call_log_denied_toast), Toast.LENGTH_LONG).show()
-                        }
-                        ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_CALL_LOG) -> {
-                            Toast.makeText(applicationContext, getString(R.string.call_log_denied_toast), Toast.LENGTH_LONG).show()
-                        }
-                        ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.VIBRATE) -> {
-                            Toast.makeText(applicationContext, getString(R.string.vibrate_denied_toast), Toast.LENGTH_LONG).show()
-                        }
-                        ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS) -> {
-                            Toast.makeText(applicationContext, getString(R.string.contacts_denied_toast), Toast.LENGTH_LONG).show()
-                        }
-                        else -> {
-                            goToSettings()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun goToSettings() {
-        val myAppSettings = Intent(
-            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-            Uri.parse("package:$packageName")
-        )
-        myAppSettings.addCategory(Intent.CATEGORY_DEFAULT)
-        myAppSettings.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivityForResult(myAppSettings, 5)
     }
 }

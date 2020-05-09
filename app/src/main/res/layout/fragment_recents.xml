@@ -23,13 +23,14 @@
             android:id="@+id/recents_no_permission_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone">
+            app:hasDataHide="@{viewModel.hasLogsToShow}"
+            app:hasPermissionHide="@{viewModel.hasPermissions}">
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/text_recents"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="40dp"
+                android:padding="20dp"
                 android:text="@{viewModel.noPermissionRecentsText}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -66,7 +67,9 @@
             android:id="@+id/recents_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            app:hasData="@{viewModel.hasLogsToShow}"
+            app:hasPermission="@{viewModel.hasPermissions}">
 
             <com.google.android.material.circularreveal.CircularRevealRelativeLayout
                 android:id="@+id/recentRecyclerSwitchContainer"

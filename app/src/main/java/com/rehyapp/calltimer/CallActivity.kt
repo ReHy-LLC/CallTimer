@@ -96,7 +96,7 @@ class CallActivity : AppCompatActivity() {
     }
 
     private fun updateUi(state: Int?): Consumer<in Int?>? {
-        binding.callInfo.text = "${state?.let { asString(it) }}\n$number"
+        binding.callInfo.text = state?.let { asString(it) }.plus("\n").plus(number)
         if (state != Call.STATE_RINGING) {
             binding.callAnswer.visibility = View.GONE
         } else binding.callAnswer.visibility = View.VISIBLE

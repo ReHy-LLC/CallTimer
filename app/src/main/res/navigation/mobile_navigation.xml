@@ -18,6 +18,9 @@
                 android:name="callIds"
                 app:argType="long[]" />
         </action>
+        <action
+            android:id="@+id/action_navigation_recents_to_navigation_dialer"
+            app:destination="@id/navigation_dialer" />
     </fragment>
 
     <fragment
