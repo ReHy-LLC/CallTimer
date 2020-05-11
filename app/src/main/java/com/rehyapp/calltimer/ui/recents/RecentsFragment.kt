@@ -1,7 +1,6 @@
 package com.rehyapp.calltimer.ui.recents
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -54,7 +53,6 @@ class RecentsFragment : PermissionFragment() {
 
     override fun onResume() {
         super.onResume()
-        Log.e(LOG_TAG, "Resumed!")
         if (recentsViewModel.hasPermissions.value == true) {
             if (binding.recentsRecyclerSwitch.checkedButtonId == R.id.btnMissed) {
                 recentsViewModel.showMissedLogs()

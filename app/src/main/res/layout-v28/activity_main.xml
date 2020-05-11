@@ -27,6 +27,8 @@
             android:layout_marginStart="0dp"
             android:layout_marginEnd="0dp"
             android:background="@android:color/transparent"
+            android:outlineAmbientShadowColor="@android:color/transparent"
+            android:outlineSpotShadowColor="@android:color/transparent"
             app:labelVisibilityMode="labeled"
             app:menu="@menu/bottom_nav_menu" />
 
@@ -49,6 +51,7 @@
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="?actionBarSize"
         app:defaultNavHost="true"
         app:navGraph="@navigation/mobile_navigation" />
 

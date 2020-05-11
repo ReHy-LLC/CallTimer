@@ -52,7 +52,6 @@ class RecentsAdapter : ListAdapter<RecentsUIGroupingsObject, RecyclerView.ViewHo
 
     class HeaderViewHolder(private val headerBinding: HeaderRowBinding) :
         RecyclerView.ViewHolder(headerBinding.root) {
-
         fun bindHeader(log: RecentsUIGroupingsObject) {
             headerBinding.log = log
             headerBinding.executePendingBindings()
@@ -74,14 +73,27 @@ class RecentsAdapter : ListAdapter<RecentsUIGroupingsObject, RecyclerView.ViewHo
             oldItem: RecentsUIGroupingsObject,
             newItem: RecentsUIGroupingsObject
         ): Boolean {
-            return oldItem == newItem
+            return oldItem.groupIsHeader == newItem.groupIsHeader
         }
 
         override fun areContentsTheSame(
             oldItem: RecentsUIGroupingsObject,
             newItem: RecentsUIGroupingsObject
         ): Boolean {
-            return oldItem.groupCallIds.toString() == newItem.groupCallIds.toString()
+
+            if (!oldItem.groupNumber.equals(newItem.groupNumber)) {
+                return false
+            } else if (!oldItem.groupTimeDayDate.equals(newItem.groupTimeDayDate)) {
+                return false
+            } else if (oldItem.groupCallIds.size != newItem.groupCallIds.size) {
+                return false
+            }
+
+            if (oldItem.groupCallIds.size == newItem.groupCallIds.size && oldItem.groupCallIds.size > 0) {
+                //TODO: Finish compare logic here.
+            }
+
+            return true
         }
 
     }

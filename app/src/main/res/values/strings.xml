@@ -87,4 +87,5 @@
     <string name="permission_permanent_denial_read_write_contacts">Permission to read or write contacts was permanently denied. You must enable this permission in settings.</string>
     <string name="permission_permanent_denial_calls_call_logs_contacts">Permission to place calls, read or write contacts or call logs was permanently denied. You must enable this permission in settings.</string>
     <string name="permission_title_calls_call_logs_contacts">Place calls, Read Call Logs, and Read Contacts</string>
+    <string name="title_recents_long">View Recent Call Logs</string>
 </resources>

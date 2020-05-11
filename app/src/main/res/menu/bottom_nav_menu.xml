@@ -2,14 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_dialer"
-        android:icon="@drawable/ic_dialpad"
-        android:title="@string/title_dialer" />
-
-    <item
         android:id="@+id/navigation_recents"
         android:icon="@drawable/ic_phone_log"
-        android:title="@string/title_recents" />
+        android:contentDescription="@string/title_recents_long"
+        android:title="@string/title_recents"
+        android:titleCondensed="@string/title_recents" />
 
     <item
         android:id="@+id/navigation_contacts"
