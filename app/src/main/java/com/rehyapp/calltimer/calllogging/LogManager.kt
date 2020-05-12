@@ -178,6 +178,7 @@ class LogManager(_context: Context) {
 
         //create header group
         val headerGrouping = RecentsUIGroupingsObject(
+            0,
             "",
             0,
             context.getString(R.string.title_recents),
@@ -185,7 +186,7 @@ class LogManager(_context: Context) {
             false,
             "",
             "",
-            mutableListOf(),
+            mutableListOf(0),
             true,
             false,
             0,
@@ -276,6 +277,7 @@ class LogManager(_context: Context) {
 
                 //store call id in list
                 recentsObject.groupCallIds.add(newGroupCallId)
+
 
                 //set group number field, formatted
                 recentsObject.groupNumber = PhoneNumberUtils.formatNumber(
@@ -468,6 +470,9 @@ class LogManager(_context: Context) {
                     }
                 }
 
+                //set unique id for group item as call id, we will sum all call ids for groups with multiple calls
+                recentsObject.groupUniqueId = newGroupCallId
+
                 //add to group list
                 recentsUIGroupedList.add(recentsObject)
 
@@ -481,6 +486,9 @@ class LogManager(_context: Context) {
 
                 //store call id in list
                 priorGroupItem.groupCallIds.add(newGroupCallId)
+
+                //sum call ids as unique ids
+                priorGroupItem.groupUniqueId = priorGroupItem.groupUniqueId.plus(newGroupCallId)
 
                 //different scenarios for groupTimeDayDate field
                 if (TextUtils.equals(

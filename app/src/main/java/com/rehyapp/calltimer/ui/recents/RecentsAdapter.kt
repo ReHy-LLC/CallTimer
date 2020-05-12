@@ -80,20 +80,7 @@ class RecentsAdapter : ListAdapter<RecentsUIGroupingsObject, RecyclerView.ViewHo
             oldItem: RecentsUIGroupingsObject,
             newItem: RecentsUIGroupingsObject
         ): Boolean {
-
-            if (!oldItem.groupNumber.equals(newItem.groupNumber)) {
-                return false
-            } else if (!oldItem.groupTimeDayDate.equals(newItem.groupTimeDayDate)) {
-                return false
-            } else if (oldItem.groupCallIds.size != newItem.groupCallIds.size) {
-                return false
-            }
-
-            if (oldItem.groupCallIds.size == newItem.groupCallIds.size && oldItem.groupCallIds.size > 0) {
-                //TODO: Finish compare logic here.
-            }
-
-            return true
+            return oldItem.groupUniqueId == newItem.groupUniqueId
         }
 
     }
@@ -110,7 +97,7 @@ class RecentsAdapter : ListAdapter<RecentsUIGroupingsObject, RecyclerView.ViewHo
 
     override fun getItemCount(): Int = currentList.size
 
-    override fun getItemId(position: Int): Long = position.toLong()
+    override fun getItemId(position: Int): Long = getItem(position).groupUniqueId
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {

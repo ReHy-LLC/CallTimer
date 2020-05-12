@@ -43,8 +43,8 @@ class RecentsViewModel(private val logManager: LogManager, application: Applicat
         get() = _logData
 
     init {
-        _hasPermissions.value = false
-        _hasLogsToShow.value = false
+        _hasPermissions.value = true
+        _hasLogsToShow.value = true
     }
 
     fun showAllLogs() {
