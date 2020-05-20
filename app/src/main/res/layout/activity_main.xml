@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/nav_view"
@@ -18,6 +20,7 @@
         app:fabCradleMargin="16dp"
         app:fabCradleRoundedCornerRadius="12dp"
         app:fabCradleVerticalOffset="0dp"
+        app:elevation="8dp"
         app:hideOnScroll="true">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -44,12 +47,15 @@
         app:fabSize="normal"
         app:layout_anchor="@id/nav_view" />
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
+        app:defaultNavHost="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:defaultNavHost="true"
+        android:clipToPadding="false"
+        android:fitsSystemWindows="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:navGraph="@navigation/mobile_navigation" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

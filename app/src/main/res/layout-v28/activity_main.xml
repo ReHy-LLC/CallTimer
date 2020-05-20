@@ -10,9 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:contentInsetEnd="100dp"
-        app:contentInsetStart="0dp"
-        app:contentInsetStartWithNavigation="0dp"
+        app:contentInsetEnd="120dp"
         app:fabAlignmentMode="end"
         app:fabAnimationMode="slide"
         app:fabCradleMargin="16dp"
@@ -44,9 +42,10 @@
         app:backgroundTint="@android:color/background_light"
         app:elevation="8dp"
         app:fabSize="normal"
+        android:tint="@color/colorPrimary"
         app:layout_anchor="@id/nav_view" />
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"

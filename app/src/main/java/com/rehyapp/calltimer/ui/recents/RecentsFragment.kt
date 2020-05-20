@@ -4,13 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rehyapp.calltimer.R
 import com.rehyapp.calltimer.databinding.FragmentRecentsBinding
@@ -133,7 +130,7 @@ class RecentsFragment : PermissionFragment() {
         }
 
         //add recycler scroll listener to determine if scrolled past first row and then needs to show divider above the recycler
-        binding.recentsRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        /*binding.recentsRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 //get the recycler layout manager to get visible item position
@@ -145,14 +142,14 @@ class RecentsFragment : PermissionFragment() {
                     binding.recentRecyclerSwitchDivider.visibility = View.GONE
                 }
             }
-        })
+        })*/
 
         //create item touch helper using swipe handler and attach to recycler
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(binding.recentsRecycler)
 
         //create recycler divider decorator
-        val dividerItemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+        /*val dividerItemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
 
         //set divider drawable as divider decorator drawable
         dividerItemDecoration.setDrawable(
@@ -163,7 +160,7 @@ class RecentsFragment : PermissionFragment() {
         )
 
         //add divider to recycler
-        binding.recentsRecycler.addItemDecoration(dividerItemDecoration)
+        binding.recentsRecycler.addItemDecoration(dividerItemDecoration)*/
 
         //observe log fetch from viewModel
         recentsViewModel.logData.observe(viewLifecycleOwner, Observer {

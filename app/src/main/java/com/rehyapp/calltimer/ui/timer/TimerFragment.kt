@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.rehyapp.calltimer.databinding.FragmentTimerBinding
-import com.rehyapp.calltimer.ui.dialer.DialerViewModel
 
 class TimerFragment : Fragment() {
 
@@ -16,7 +15,7 @@ class TimerFragment : Fragment() {
         private const val LOG_TAG = "TimeFragment"
     }
 
-    private lateinit var timerViewModel: DialerViewModel
+    private lateinit var timerViewModel: TimerViewModel
     private lateinit var binding: FragmentTimerBinding
 
     override fun onCreateView(
@@ -24,7 +23,7 @@ class TimerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        timerViewModel = ViewModelProvider(this).get(DialerViewModel::class.java)
+        timerViewModel = ViewModelProvider(this).get(TimerViewModel::class.java)
         binding = FragmentTimerBinding.inflate(inflater, container, false)
         timerViewModel.text.observe(viewLifecycleOwner, Observer {
             binding.textTimer.text = it

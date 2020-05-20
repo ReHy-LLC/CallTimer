@@ -27,9 +27,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
         val navView: BottomNavigationView = binding.navViewNav
         val navController = findNavController(R.id.nav_host_fragment)
         navView.setupWithNavController(navController)
+        super.onPostCreate(savedInstanceState)
     }
 
     override fun onResume() {
