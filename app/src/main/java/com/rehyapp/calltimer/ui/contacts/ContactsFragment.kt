@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import com.rehyapp.calltimer.R
 import com.rehyapp.calltimer.databinding.FragmentContactsBinding
+import com.rehyapp.calltimer.ui.MainSharedViewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class ContactsFragment : Fragment() {
 
@@ -15,7 +17,9 @@ class ContactsFragment : Fragment() {
         private const val LOG_TAG = "ContactsFragment"
     }
 
-    private lateinit var contactsViewModel: ContactsViewModel
+    //koin dependency injected ViewModel
+    private val sharedViewModel by sharedViewModel<MainSharedViewModel>()
+
     private lateinit var binding: FragmentContactsBinding
 
     override fun onCreateView(
@@ -23,11 +27,10 @@ class ContactsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentContactsBinding.inflate(inflater, container, false)
-        contactsViewModel = ViewModelProvider(this).get(ContactsViewModel::class.java)
-        contactsViewModel.text.observe(viewLifecycleOwner, Observer {
-            binding.textContacts.text = it
-        })
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contacts, container, false)
+        binding.viewModel = sharedViewModel
+        binding.lifecycleOwner = activity
+        sharedViewModel.setActivityToolbarTitle(getString(R.string.title_contacts))
         return binding.root
     }
 }

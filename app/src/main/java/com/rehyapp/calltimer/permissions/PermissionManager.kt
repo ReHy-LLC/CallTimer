@@ -126,21 +126,23 @@ class PermissionManager(private val permissionListener: PermissionListener) {
         if (!activity.isFinishing) {
             val title = getPermissionTitle(businessRequest)
             val message = getMessageForRationale(activity, businessRequest)
-
-            AlertDialog.Builder(activity)
-                .setTitle(title)
-                .setMessage(message)
-                .setCancelable(false)
-                .setPositiveButton(R.string.retry) { _, _ ->
-                    permissionListener.retry()
-                }
-                .setNegativeButton(R.string.cancel) { dialog, _ ->
-                    if (!activity.isFinishing) {
-                        dialog.dismiss()
-                        permissionListener.deny()
+            activity.let {
+                val builder = AlertDialog.Builder(it)
+                builder.apply {
+                    setTitle(title)
+                    setMessage(message)
+                    setCancelable(false)
+                    setPositiveButton(R.string.retry) { _, _ ->
+                        permissionListener.retry()
                     }
-                }
-                .show()
+                    setNegativeButton(R.string.cancel) { dialog, _ ->
+                        if (!activity.isFinishing) {
+                            dialog.dismiss()
+                            permissionListener.deny()
+                        }
+                    }
+                }.create()
+            }.show()
         }
     }
 
@@ -153,39 +155,45 @@ class PermissionManager(private val permissionListener: PermissionListener) {
             val title = getPermissionTitle(businessRequest)
             val message = getMessageForPermanentDenial(activity, businessRequest, deniedPermissions)
 
-            AlertDialog.Builder(activity)
-                .setTitle(title)
-                .setMessage(message)
-                .setCancelable(false)
-                .setPositiveButton(R.string.settings) { _, _ ->
-                    permissionListener.navigateToSettings()
-                }
-                .setNegativeButton(R.string.cancel) { dialog, _ ->
-                    if (!activity.isFinishing) {
-                        dialog.dismiss()
-                        permissionListener.deny()
+            activity.let {
+                val builder = AlertDialog.Builder(it)
+                builder.apply {
+                    setTitle(title)
+                    setMessage(message)
+                    setCancelable(false)
+                    setPositiveButton(R.string.settings) { _, _ ->
+                        permissionListener.navigateToSettings()
                     }
-                }
-                .show()
+                    setNegativeButton(R.string.cancel) { dialog, _ ->
+                        if (!activity.isFinishing) {
+                            dialog.dismiss()
+                            permissionListener.deny()
+                        }
+                    }
+                }.create()
+            }.show()
         }
     }
 
     fun handleResume(activity: Activity) {
         if (!activity.isFinishing) {
-            AlertDialog.Builder(activity)
-                .setTitle(R.string.retry)
-                .setMessage(R.string.retry_business)
-                .setCancelable(false)
-                .setPositiveButton(R.string.yes) { _, _ ->
-                    permissionListener.retry()
-                }
-                .setNegativeButton(R.string.no) { dialog, _ ->
-                    if (!activity.isFinishing) {
-                        dialog.dismiss()
-                        permissionListener.deny()
+            activity.let {
+                val builder = AlertDialog.Builder(it)
+                builder.apply {
+                    setTitle(R.string.retry)
+                    setMessage(R.string.retry_business)
+                    setCancelable(false)
+                    setPositiveButton(R.string.yes) { _, _ ->
+                        permissionListener.retry()
                     }
-                }
-                .show()
+                    setNegativeButton(R.string.no) { dialog, _ ->
+                        if (!activity.isFinishing) {
+                            dialog.dismiss()
+                            permissionListener.deny()
+                        }
+                    }
+                }.create()
+            }.show()
         }
     }
 }

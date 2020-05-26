@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import com.rehyapp.calltimer.R
 import com.rehyapp.calltimer.databinding.FragmentDialerBinding
+import com.rehyapp.calltimer.ui.MainSharedViewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class DialerFragment : Fragment() {
 
@@ -15,7 +17,9 @@ class DialerFragment : Fragment() {
         private const val LOG_TAG = "DialerFragment"
     }
 
-    private lateinit var dialerViewModel: DialerViewModel
+    //koin dependency injected ViewModel
+    private val sharedViewModel by sharedViewModel<MainSharedViewModel>()
+
     private lateinit var binding: FragmentDialerBinding
 
     override fun onCreateView(
@@ -23,11 +27,9 @@ class DialerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        dialerViewModel = ViewModelProvider(this).get(DialerViewModel::class.java)
-        binding = FragmentDialerBinding.inflate(inflater, container, false)
-        dialerViewModel.text.observe(viewLifecycleOwner, Observer {
-            binding.textUsage.text = it
-        })
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_dialer, container, false)
+        binding.viewModel = sharedViewModel
+        binding.lifecycleOwner = activity
         return binding.root
     }
 }

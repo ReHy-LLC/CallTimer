@@ -12,8 +12,7 @@
         tools:layout="@layout/fragment_recents">
         <action
             android:id="@+id/action_navigation_recents_to_callDetailsFragment"
-            app:destination="@id/callDetailsFragment"
-            app:enterAnim="@anim/enter_from_right">
+            app:destination="@id/callDetailsFragment">
             <argument
                 android:name="callIds"
                 app:argType="long[]" />

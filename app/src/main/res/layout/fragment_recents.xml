@@ -11,7 +11,7 @@
 
         <variable
             name="viewModel"
-            type="com.rehyapp.calltimer.ui.recents.RecentsViewModel" />
+            type="com.rehyapp.calltimer.ui.MainSharedViewModel" />
     </data>
 
     <com.google.android.material.circularreveal.CircularRevealFrameLayout
@@ -22,15 +22,15 @@
             android:id="@+id/recents_no_permission_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:hasDataHide="@{viewModel.hasLogsToShow}"
-            app:hasPermissionHide="@{viewModel.hasPermissions}">
+            app:hasDataHide="@{viewModel.recentsHasLogsToShow}"
+            app:hasPermissionHide="@{viewModel.recentsHasPermissions}">
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/text_recents"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="20dp"
-                android:text="@{viewModel.noPermissionRecentsText}"
+                android:text="@{viewModel.recentsNoPermissionText}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -52,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:clickable="true"
                 android:focusable="true"
-                android:text="@{viewModel.noPermissionRecentsLink}"
+                android:text="@{viewModel.recentsNoPermissionButtonText}"
                 android:textAllCaps="true"
                 android:textColor="@android:color/holo_blue_dark"
                 android:textStyle="bold"
@@ -62,80 +62,14 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.google.android.material.circularreveal.coordinatorlayout.CircularRevealCoordinatorLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recents_recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:hasData="@{viewModel.hasLogsToShow}"
-            app:hasPermission="@{viewModel.hasPermissions}">
-
-            <com.google.android.material.appbar.AppBarLayout
-                android:id="@+id/recentsAppbar"
-                android:layout_width="match_parent"
-                android:layout_height="?actionBarSize"
-                android:layout_gravity="top"
-                android:background="@android:color/background_light"
-                android:theme="@style/Widget.MaterialComponents.ActionBar.Solid">
-
-                <com.google.android.material.appbar.CollapsingToolbarLayout
-                    android:id="@+id/recentRecyclerSwitchContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:layout_scrollFlags="scroll|enterAlways">
-
-                    <com.google.android.material.button.MaterialButtonToggleGroup
-                        android:id="@+id/recentsRecyclerSwitch"
-                        android:layout_width="160dp"
-                        android:layout_height="45dp"
-                        android:layout_gravity="center"
-                        app:checkedButton="@id/btnAll"
-                        app:singleSelection="true">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAll"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/all"
-                            android:textSize="11sp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnMissed"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/call_type_missed"
-                            android:textSize="11sp" />
-
-                    </com.google.android.material.button.MaterialButtonToggleGroup>
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/recentsRecyclerLink"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical|end"
-                        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:text="@string/edit"
-                        android:textAllCaps="true"
-                        android:textColor="@android:color/holo_blue_dark"
-                        android:textStyle="bold" />
-
-                </com.google.android.material.appbar.CollapsingToolbarLayout>
-
-            </com.google.android.material.appbar.AppBarLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recents_recycler"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="?actionBarSize"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:setAdapter="@{adapter}" />
-
-        </com.google.android.material.circularreveal.coordinatorlayout.CircularRevealCoordinatorLayout>
+            app:hasData="@{viewModel.recentsHasLogsToShow}"
+            app:hasPermission="@{viewModel.recentsHasPermissions}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:setAdapter="@{adapter}" />
 
     </com.google.android.material.circularreveal.CircularRevealFrameLayout>
 

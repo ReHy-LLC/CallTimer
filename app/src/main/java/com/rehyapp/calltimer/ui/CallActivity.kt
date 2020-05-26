@@ -1,4 +1,4 @@
-package com.rehyapp.calltimer
+package com.rehyapp.calltimer.ui
 
 import android.app.KeyguardManager
 import android.content.Context

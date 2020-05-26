@@ -176,26 +176,6 @@ class LogManager(_context: Context) {
         //empty group list to add to as we loop raw list
         val recentsUIGroupedList = mutableListOf<RecentsUIGroupingsObject>()
 
-        //create header group
-        val headerGrouping = RecentsUIGroupingsObject(
-            0,
-            "",
-            0,
-            context.getString(R.string.title_recents),
-            "",
-            false,
-            "",
-            "",
-            mutableListOf(0),
-            true,
-            false,
-            0,
-            null
-        )
-
-        //add header to list
-        recentsUIGroupedList.add(headerGrouping)
-
         //if no items then just return header
         if (rawLogList.isNullOrEmpty()) {
             return recentsUIGroupedList
@@ -213,6 +193,7 @@ class LogManager(_context: Context) {
         val min = second * 60
         val hour = min * 60
         val day = hour * 24
+        val week = day * 7
 
         //start group call count
         var groupCallCount = 1
@@ -291,12 +272,10 @@ class LogManager(_context: Context) {
                         dateFormat.format(today)
                     )
                 ) {
-
                     //display time in timeDayDate field because it occurred today
                     recentsObject.groupTimeDayDate =
                         DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault())
                             .format(newGroupDate)
-
                 } else if (TextUtils.equals(
                         dateFormat.format(Date(newGroupDate)),
                         dateFormat.format(Date(today - day))
@@ -400,6 +379,13 @@ class LogManager(_context: Context) {
                                 )
                             )
                         )
+
+                        //get contact thumb uri string and save to group
+                        recentsObject.contactThumbUri = contactCursor.getString(
+                            contactCursor
+                                .getColumnIndex(ContactsContract.Contacts.PHOTO_THUMBNAIL_URI)
+                        )
+
                     } finally {
                         //close contact cursor
                         contactCursor.close()
@@ -555,6 +541,83 @@ class LogManager(_context: Context) {
                     priorGroupItem.groupTopText =
                         priorGroupItem.groupTopText.plus(" ($groupCallCount)")
 
+                }
+            }
+        }
+
+        var addedToday = false
+        var addedYesterday = false
+        var addedOlder = false
+
+        //loop list to add headers
+        for (i in 0 until recentsUIGroupedList.size) {
+            //get current item
+            val item = recentsUIGroupedList[i]
+            //skip if header
+            if (!item.groupIsHeader!!) {
+                //check if today by checking if formatted as time
+                if (item.groupTimeDayDate!!.contains(":") && !addedToday) {
+                    recentsUIGroupedList.add(
+                        i, RecentsUIGroupingsObject(
+                            123456,
+                            "",
+                            0,
+                            context.getString(R.string.today),
+                            "",
+                            false,
+                            "",
+                            "",
+                            mutableListOf(),
+                            true,
+                            false,
+                            0,
+                            null
+                        )
+                    )
+                    addedToday = true
+                } else if (item.groupTimeDayDate!! == context.getString(R.string.yesterday) && !addedYesterday) {
+                    //check if yesterday by checking if formatted as time
+                    recentsUIGroupedList.add(
+                        i, RecentsUIGroupingsObject(
+                            654321,
+                            "",
+                            0,
+                            context.getString(R.string.yesterday),
+                            "",
+                            false,
+                            "",
+                            "",
+                            mutableListOf(),
+                            true,
+                            false,
+                            0,
+                            null
+                        )
+                    )
+                    addedYesterday = true
+                } else if (item.groupTimeDayDate!! != context.getString(R.string.yesterday)
+                    && !item.groupTimeDayDate!!.contains(":")
+                    && !addedOlder
+                ) {
+                    //if not today or yesterday then its older
+                    recentsUIGroupedList.add(
+                        i, RecentsUIGroupingsObject(
+                            987654,
+                            "",
+                            0,
+                            context.getString(R.string.older),
+                            "",
+                            false,
+                            "",
+                            "",
+                            mutableListOf(),
+                            true,
+                            false,
+                            0,
+                            null
+                        )
+                    )
+                    addedOlder = true
                 }
             }
         }

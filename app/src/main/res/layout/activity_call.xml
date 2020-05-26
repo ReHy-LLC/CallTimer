@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CallActivity"
-    android:background="@android:color/background_dark">
+    tools:context=".ui.CallActivity">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/call_info"
@@ -15,8 +14,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="Call Activity"
-        android:textColor="@android:color/primary_text_dark"/>
+        android:text="Call Activity" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/call_answer"

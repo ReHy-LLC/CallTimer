@@ -8,26 +8,18 @@
             type="com.rehyapp.calltimer.calllogging.RecentsUIGroupingsObject" />
     </data>
 
-    <com.google.android.material.circularreveal.CircularRevealFrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
         <com.google.android.material.circularreveal.CircularRevealRelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical">
 
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginStart="60dp"
-                android:gravity="center_vertical"
                 android:text="@{log.groupTopText}"
-                android:textAppearance="@android:style/TextAppearance.Material.Display1"
-                android:textColor="@android:color/black"
-                android:textStyle="bold" />
+                android:textAllCaps="true"
+                android:textAppearance="?attr/textAppearanceOverline" />
 
         </com.google.android.material.circularreveal.CircularRevealRelativeLayout>
-
-    </com.google.android.material.circularreveal.CircularRevealFrameLayout>
 
 </layout>

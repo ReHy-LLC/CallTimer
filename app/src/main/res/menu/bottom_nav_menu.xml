@@ -4,9 +4,7 @@
     <item
         android:id="@+id/navigation_recents"
         android:icon="@drawable/ic_phone_log"
-        android:contentDescription="@string/title_recents_long"
-        android:title="@string/title_recents"
-        android:titleCondensed="@string/title_recents" />
+        android:title="@string/title_recents" />
 
     <item
         android:id="@+id/navigation_contacts"

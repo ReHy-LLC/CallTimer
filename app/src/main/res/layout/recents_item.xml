@@ -20,16 +20,17 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="50dp"
             android:layout_centerVertical="true">
 
-            <androidx.appcompat.widget.AppCompatImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/log_type_image"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginEnd="20sp"
-                android:padding="10dp"
-                app:imageResource="@{log.groupIconDrawableId}"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="20dp"
+                app:imageUri="@{log.contactThumbUri}"
+                app:shapeAppearanceOverlay="@style/circleImageViewStyle"
+                app:topTextForAvatar="@{log.isContact() ? log.groupTopText : log.groupNumber}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -38,6 +39,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:layout_marginStart="15dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/log_type_image"
                 app:layout_constraintTop_toTopOf="parent">
@@ -48,39 +50,48 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:text="@{log.groupTopText}"
-                    android:textAppearance="@android:style/TextAppearance.Material.Medium"
+                    android:textAppearance="?attr/subtitleTextAppearance"
                     android:textColor="@{log.groupTopTextRed ? @android:color/holo_red_dark :@android:color/black}"
                     android:textStyle="bold" />
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/log_bottom_text"
+                <com.google.android.material.circularreveal.CircularRevealLinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:text="@{log.groupBottomText}"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:orientation="horizontal">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/log_type_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:imageResource="@{log.groupIconDrawableId}" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/log_bottom_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="@{log.groupBottomText}"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/log_day_date_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{log.groupTimeDayDate}" />
+
+                </com.google.android.material.circularreveal.CircularRevealLinearLayout>
 
             </com.google.android.material.circularreveal.CircularRevealLinearLayout>
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/log_info_icon"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginEnd="5sp"
-                android:padding="12dp"
-                android:src="@drawable/ic_information_outline"
-                android:tint="#03A9F4"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/log_day_date_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{log.groupTimeDayDate}"
+                android:layout_marginEnd="25sp"
+                android:padding="12dp"
+                android:src="@drawable/ic_phone"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/log_info_icon"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,7 +2,7 @@ package com.rehyapp.calltimer.in_call_utils
 
 import android.telecom.Call
 import android.telecom.InCallService
-import com.rehyapp.calltimer.CallActivity
+import com.rehyapp.calltimer.ui.CallActivity
 
 
 class CallService : InCallService() {

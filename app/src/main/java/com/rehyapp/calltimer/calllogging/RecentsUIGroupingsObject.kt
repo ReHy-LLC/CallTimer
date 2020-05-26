@@ -15,5 +15,6 @@ data class RecentsUIGroupingsObject(
     var groupIsHeader: Boolean? = false,
     var isContact: Boolean? = false,
     var contactId: Long? = 0,
-    var contactUri: Uri? = null
+    var contactUri: Uri? = null,
+    var contactThumbUri: String? = "NULL"
 )
