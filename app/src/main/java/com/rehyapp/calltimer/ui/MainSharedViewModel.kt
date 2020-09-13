@@ -7,8 +7,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.rehyapp.calltimer.R
-import com.rehyapp.calltimer.calllogging.LogManager
-import com.rehyapp.calltimer.calllogging.RecentsUIGroupingsObject
+import com.rehyapp.calltimer.call_logging.LogManager
+import com.rehyapp.calltimer.call_logging.RecentsUIGroupingsObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -24,19 +24,14 @@ class MainSharedViewModel(private val logManager: LogManager, application: Appli
     private val _activityIsRecentsFragShowing = MutableLiveData<Boolean>()
     val activityIsRecentsFragShowing: MutableLiveData<Boolean> = _activityIsRecentsFragShowing
 
-    private val _activityToolbarTitle = MutableLiveData<String>()
-    val activityToolbarTitle: MutableLiveData<String> = _activityToolbarTitle
-
-    fun setActivityToolbarTitle(toolbarTitle: String) {
-        _activityToolbarTitle.postValue(toolbarTitle)
-        var isRecentsFragShowing = false
-        if (toolbarTitle == context.getString(R.string.title_recents)) {
-            isRecentsFragShowing = true
-        }
+    fun setActivityIsRecentsFragShowing(isRecentsFragShowing: Boolean) {
         _activityIsRecentsFragShowing.value = isRecentsFragShowing
     }
 
     /****************************** BEGIN RECENTS FRAGMENT SECTION ************************************/
+    private val _recentsUnreadMissedCount = MutableLiveData<Int>()
+    val recentsUnreadMissedCount: MutableLiveData<Int> = _recentsUnreadMissedCount
+
     private val _recentsHasPermissions = MutableLiveData<Boolean>()
     val recentsHasPermissions: MutableLiveData<Boolean> = _recentsHasPermissions
 
@@ -48,6 +43,9 @@ class MainSharedViewModel(private val logManager: LogManager, application: Appli
 
     private val _recentsNoPermissionButtonText = MutableLiveData<String>()
     val recentsNoPermissionButtonText: MutableLiveData<String> = _recentsNoPermissionButtonText
+
+    private val _recentsFilteredMissed = MutableLiveData<Boolean>()
+    val recentsFilteredMissed: MutableLiveData<Boolean> = _recentsFilteredMissed
 
     fun recentsSetNoPermissionTexts(noPermissionTextLong: String, noPermissionButtonText: String) {
         _recentsNoPermissionText.postValue(noPermissionTextLong)
@@ -61,14 +59,23 @@ class MainSharedViewModel(private val logManager: LogManager, application: Appli
     init {
         _recentsHasPermissions.value = true
         _recentsHasLogsToShow.value = true
+        _activityIsRecentsFragShowing.value = true
+    }
+
+    fun getNewMissedCallCount() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _recentsUnreadMissedCount.postValue(logManager.getNewMissedCallCount())
+        }
     }
 
     fun recentsShowAllCallLogs() {
         recentsLoadCallLogsByType(-1)
+        _recentsFilteredMissed.value = false
     }
 
     fun recentsShowMissedCallLogs() {
         recentsLoadCallLogsByType(CallLog.Calls.MISSED_TYPE)
+        _recentsFilteredMissed.value = true
     }
 
     fun recentsUpdateHasPermissions(__hasPermissions: Boolean) {
@@ -78,27 +85,30 @@ class MainSharedViewModel(private val logManager: LogManager, application: Appli
         }
     }
 
-    fun recentsDeleteCallLogGrouping(recentsUIGroupingsObject: RecentsUIGroupingsObject) {
-        viewModelScope.launch(Dispatchers.IO) {
-            logManager.deleteLogFromRecentsObject(recentsUIGroupingsObject)
-        }
-    }
-
     private fun recentsLoadCallLogsByType(callType: Int) {
+        var canShow: Boolean
         viewModelScope.launch(Dispatchers.IO) {
             when (callType) {
-                CallLog.Calls.MISSED_TYPE -> _recentsCallLogData.postValue(
-                    logManager.convertToRecentsUIGroupings(
-                        logManager.getCallsLogsByType(callType)
+                CallLog.Calls.MISSED_TYPE -> {
+                    canShow = logManager.canShowCallLogList(
+                        CallLog.Calls.TYPE.plus(" = ")
+                            .plus(CallLog.Calls.MISSED_TYPE.toString())
                     )
-                )
-                else -> _recentsCallLogData.postValue(
-                    logManager.convertToRecentsUIGroupings(
-                        logManager.getCallLogsAll()
+                    _recentsCallLogData.postValue(
+                        logManager.convertToRecentsUIGroupings(
+                            logManager.getCallsLogsByType(callType)
+                        )
                     )
-                )
+                }
+                else -> {
+                    canShow = logManager.canShowCallLogList("")
+                    _recentsCallLogData.postValue(
+                        logManager.convertToRecentsUIGroupings(
+                            logManager.getCallLogsAll()
+                        )
+                    )
+                }
             }
-            val canShow = logManager.canShowCallLogList("")
             _recentsHasLogsToShow.postValue(canShow)
             if (!canShow) {
                 recentsSetNoPermissionTexts(
@@ -107,6 +117,7 @@ class MainSharedViewModel(private val logManager: LogManager, application: Appli
                 )
             }
         }
+        getNewMissedCallCount()
     }
 
     fun recentsDeleteAllCallLogs() {

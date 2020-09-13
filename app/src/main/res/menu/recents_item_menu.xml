@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/recents_item_menu_copy"
+        android:icon="@drawable/ic_content_copy"
+        android:title="@string/copy_number" />
+
+    <item
+        android:id="@+id/recents_item_menu_block"
+        android:icon="@drawable/ic_block"
+        android:title="@string/block" />
+
+    <item
+        android:id="@+id/recents_item_menu_unblock"
+        android:icon="@drawable/ic_unblock"
+        android:title="@string/unblock" />
+
+    <item
+        android:id="@+id/recents_item_menu_delete"
+        android:icon="@drawable/ic_delete_outline"
+        android:title="@string/delete" />
+
+</menu>

@@ -32,4 +32,9 @@ class DialerFragment : Fragment() {
         binding.lifecycleOwner = activity
         return binding.root
     }
+
+    override fun onResume() {
+        super.onResume()
+        sharedViewModel.setActivityIsRecentsFragShowing(false)
+    }
 }

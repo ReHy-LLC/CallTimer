@@ -9,4 +9,11 @@
     <dimen name="component_label_horizontal_margin">@dimen/keyline_4</dimen>
     <dimen name="elevation_default_top_app_bar">4dp</dimen>
 
+    <dimen name="list_item_height">72dp</dimen>
+    <dimen name="list_item_margin_spacing">16dp</dimen>
+    <dimen name="list_item_avatar_size">40dp</dimen>
+    <dimen name="list_item_end_icon_size">24dp</dimen>
+    <dimen name="list_item_secondary_text_margin_bottom">20dp</dimen>
+    <dimen name="list_item_header_height">48dp</dimen>
+
 </resources>

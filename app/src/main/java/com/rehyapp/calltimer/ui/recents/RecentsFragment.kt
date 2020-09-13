@@ -3,21 +3,18 @@ package com.rehyapp.calltimer.ui.recents
 import android.database.ContentObserver
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.provider.CallLog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
 import com.rehyapp.calltimer.R
 import com.rehyapp.calltimer.databinding.FragmentRecentsBinding
 import com.rehyapp.calltimer.permissions.BusinessRequest
 import com.rehyapp.calltimer.permissions.PermissionFragment
 import com.rehyapp.calltimer.ui.MainSharedViewModel
-import com.rehyapp.calltimer.ui.SwipeToDeleteCallback
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class RecentsFragment : PermissionFragment() {
@@ -36,7 +33,7 @@ class RecentsFragment : PermissionFragment() {
     private val recentsAdapter = RecentsAdapter()
 
     //create observer
-    private val callLogChangeObserver = CallLogChangeObserver(Handler())
+    private val callLogChangeObserver = CallLogChangeObserver(Handler(Looper.getMainLooper()))
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
@@ -47,9 +44,6 @@ class RecentsFragment : PermissionFragment() {
         binding.viewModel = sharedViewModel
         binding.adapter = recentsAdapter
         binding.lifecycleOwner = activity
-
-        //set toolbar title
-        sharedViewModel.setActivityToolbarTitle(getString(R.string.title_recents))
 
         //check if permissions were granted
         checkPermissionsAreGranted(BusinessRequest.CALLS_CALL_LOGS_CONTACTS)
@@ -63,6 +57,11 @@ class RecentsFragment : PermissionFragment() {
 
         //return root view of binding
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sharedViewModel.setActivityIsRecentsFragShowing(true)
     }
 
     override fun onPermissionsGranted(businessRequest: BusinessRequest) {
@@ -99,7 +98,7 @@ class RecentsFragment : PermissionFragment() {
     private fun setupRecycler() {
 
         //handle swipe deletes for recycler items
-        val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
+        /*val swipeHandler = object : SwipeToDeleteCallback(requireContext()) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 //delete as long as its not the header
                 if (viewHolder.itemViewType != RecentsAdapter.ITEM_VIEW_TYPE_HEADER) {
@@ -118,20 +117,27 @@ class RecentsFragment : PermissionFragment() {
 
         //create item touch helper using swipe handler and attach to recycler
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
-        itemTouchHelper.attachToRecyclerView(binding.recentsRecycler)
+        itemTouchHelper.attachToRecyclerView(binding.recentsRecycler)*/
 
         //observe log fetch from viewModel
-        sharedViewModel.recentsCallLogData.observe(viewLifecycleOwner, Observer {
+        sharedViewModel.recentsCallLogData.observe(viewLifecycleOwner, {
             it.let(recentsAdapter::submitList)
         })
 
     }
 
+    fun recyclerScrollTop() {
+        binding.recentsRecycler.scrollToPosition(0)
+    }
+
     inner class CallLogChangeObserver(handler: Handler) : ContentObserver(handler) {
 
         override fun onChange(selfChange: Boolean) {
-            sharedViewModel.recentsShowAllCallLogs()
-            //TODO: Add logic to be aware of missed versus all call logs to refresh.
+            if (sharedViewModel.recentsFilteredMissed.value == true) {
+                sharedViewModel.recentsShowMissedCallLogs()
+            } else {
+                sharedViewModel.recentsShowAllCallLogs()
+            }
         }
 
     }

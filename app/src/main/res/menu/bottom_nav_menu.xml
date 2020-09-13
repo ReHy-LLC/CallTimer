@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <item
         android:id="@+id/navigation_recents"
         android:icon="@drawable/ic_phone_log"
-        android:title="@string/title_recents" />
+        android:title="@string/title_recents"
+        android:tooltipText="@string/tooltip_recents"
+        tools:ignore="UnusedAttribute" />
 
     <item
         android:id="@+id/navigation_contacts"
         android:icon="@drawable/ic_contacts"
-        android:title="@string/title_contacts" />
+        android:title="@string/title_contacts"
+        android:tooltipText="@string/tooltip_contacts"
+        tools:ignore="UnusedAttribute" />
 
     <item
         android:id="@+id/navigation_timer"
         android:icon="@drawable/ic_timer"
-        android:title="@string/title_timer" />
+        android:title="@string/title_timer"
+        android:tooltipText="@string/tooltip_timer"
+        tools:ignore="UnusedAttribute" />
 
 </menu>

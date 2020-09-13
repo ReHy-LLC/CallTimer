@@ -90,7 +90,15 @@
     <string name="title_recents_long">View Recent Call Logs</string>
     <string name="title_clear_all_calls_dialog">Clear call history?</string>
     <string name="message_clear_all_calls_dialog">This will delete all calls from your history</string>
-    <string name="ok">Ok</string>
+    <string name="ok">@android:string/ok</string>
     <string name="today">Today</string>
     <string name="older">Older</string>
+    <string name="tooltip_recents">View recent call logs</string>
+    <string name="tooltip_contacts">View contacts with phone numbers</string>
+    <string name="tooltip_timer">View call timer stats and settings</string>
+    <string name="tooltip_dial">Open dial pad</string>
+    <string name="copy_number">Copy number</string>
+    <string name="block">Block</string>
+    <string name="delete">Delete</string>
+    <string name="unblock">Unblock</string>
 </resources>

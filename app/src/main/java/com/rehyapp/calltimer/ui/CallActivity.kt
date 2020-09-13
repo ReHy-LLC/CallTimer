@@ -7,8 +7,11 @@ import android.os.Build
 import android.os.Bundle
 import android.telecom.Call
 import android.view.View
+import android.view.WindowInsets
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
 import com.rehyapp.calltimer.databinding.ActivityCallBinding
 import com.rehyapp.calltimer.in_call_utils.Constants.asString
 import com.rehyapp.calltimer.in_call_utils.OngoingCall
@@ -39,6 +42,22 @@ class CallActivity : AppCompatActivity() {
     private var ongoingCall: OngoingCall? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        findViewById<View>(android.R.id.content).transitionName = "shared_element_container"
+
+        // Attach a callback used to receive the shared elements from Activity A to be
+        // used by the container transform transition.
+        setEnterSharedElementCallback(MaterialContainerTransformSharedElementCallback())
+
+        // Set this Activity’s enter and return transition to a MaterialContainerTransform
+        window.sharedElementEnterTransition = MaterialContainerTransform().apply {
+            addTarget(android.R.id.content)
+            duration = 300L
+        }
+        window.sharedElementReturnTransition = MaterialContainerTransform().apply {
+            addTarget(android.R.id.content)
+            duration = 300L
+        }
+
         super.onCreate(savedInstanceState)
         binding = ActivityCallBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -47,17 +66,25 @@ class CallActivity : AppCompatActivity() {
         ongoingCall = OngoingCall()
         disposables = CompositeDisposable()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-            val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-            keyguardManager.requestDismissKeyguard(this, null)
-        } else {
-            this.window.addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
-                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 -> {
+                setShowWhenLocked(true)
+                setTurnScreenOn(true)
+                val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+                keyguardManager.requestDismissKeyguard(this, null)
+            }
+            Build.VERSION.SDK_INT == Build.VERSION_CODES.O -> {
+                val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+                keyguardManager.requestDismissKeyguard(this, null)
+            }
+            else -> {
+                window.addFlags(
+                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
+                            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                )
+            }
         }
-
 
         number = Objects.requireNonNull(intent.data).schemeSpecificPart
 
@@ -73,7 +100,7 @@ class CallActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        assert(updateUi(-1) != null)
+        updateUi(-1)
         disposables!!.add(
             OngoingCall.state
                 .subscribe { integer -> updateUi(integer) }
@@ -113,7 +140,17 @@ class CallActivity : AppCompatActivity() {
     }
 
     private fun hideBottomNavigationBar() {
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> window.insetsController?.hide(
+                WindowInsets.Type.navigationBars()
+            )
+            else -> {
+                window.decorView.apply {
+                    systemUiVisibility =
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
+                }
+            }
+        }
     }
 
 }

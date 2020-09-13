@@ -46,4 +46,6 @@
     <!--color on surface (light)-->
     <color name="black_900">#000000</color>
 
+    <color name="red_missed_call">#ffff4444</color>
+
 </resources>

@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
         <variable
             name="log"
-            type="com.rehyapp.calltimer.calllogging.RecentsUIGroupingsObject" />
+            type="com.rehyapp.calltimer.call_logging.RecentsUIGroupingsObject" />
 
         <variable
-            name="isActivated"
-            type="Boolean" />
+            name="formatter"
+            type="com.rehyapp.calltimer.call_logging.LogFormatter" />
+
+        <import type="android.view.View" />
+
+        <import type="android.graphics.Typeface" />
+
     </data>
 
     <com.google.android.material.circularreveal.CircularRevealRelativeLayout
@@ -20,17 +26,17 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="@dimen/list_item_height"
             android:layout_centerVertical="true">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/log_type_image"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="20dp"
+                android:layout_width="@dimen/list_item_avatar_size"
+                android:layout_height="@dimen/list_item_avatar_size"
+                android:layout_marginStart="@dimen/list_item_margin_spacing"
                 app:imageUri="@{log.contactThumbUri}"
+                app:imageText="@{log.contact ? log.contactDisplayName : log.groupNumber}"
                 app:shapeAppearanceOverlay="@style/circleImageViewStyle"
-                app:topTextForAvatar="@{log.isContact() ? log.groupTopText : log.groupNumber}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -39,7 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginStart="15dp"
+                android:layout_marginStart="@dimen/list_item_margin_spacing"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/log_type_image"
                 app:layout_constraintTop_toTopOf="parent">
@@ -48,11 +54,10 @@
                     android:id="@+id/log_top_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:text="@{log.groupTopText}"
-                    android:textAppearance="?attr/subtitleTextAppearance"
-                    android:textColor="@{log.groupTopTextRed ? @android:color/holo_red_dark :@android:color/black}"
-                    android:textStyle="bold" />
+                    android:text="@{log.contact ? formatter.formatContactDisplayName(log.contactDisplayName, log.groupCallCount) : formatter.formatPhoneNumber(log.groupNumber, log.groupCallCount)}"
+                    android:textAppearance="?textAppearanceSubtitle1"
+                    app:textStyle="@{log.new &amp;&amp; log.groupType == 3 ? Typeface.BOLD : Typeface.NORMAL}"
+                    tools:text="Contact Number or Phone Number" />
 
                 <com.google.android.material.circularreveal.CircularRevealLinearLayout
                     android:layout_width="wrap_content"
@@ -61,35 +66,91 @@
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/log_type_icon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:imageResource="@{log.groupIconDrawableId}" />
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center"
+                        app:imageResource="@{formatter.pickTypeDrawableId(log.groupType, log.groupFeature)}"
+                        tools:src="@drawable/ic_call_missed" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/log_bottom_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:text="@{log.groupBottomText}"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:layout_marginStart="4dp"
+                        android:text="@{log.contact ? formatter.formatContactPhoneType(log.contactPhoneType) : log.groupGeocodedLocation}"
+                        android:textAppearance="?textAppearanceCaption"
+                        android:visibility="@{log.groupType == 3 ? View.GONE : View.VISIBLE}"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:textStyle="@{log.new &amp;&amp; log.groupType == 3 ? Typeface.BOLD : Typeface.NORMAL}"
+                        tools:text="Geocoded or Type" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/log_bottom_text_red"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="@{log.contact ? formatter.formatContactPhoneType(log.contactPhoneType) : log.groupGeocodedLocation}"
+                        android:textAppearance="?textAppearanceCaption"
+                        android:textColor="@color/red_missed_call"
+                        android:visibility="@{log.groupType == 3 ? View.VISIBLE : View.GONE}"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:textStyle="@{log.new &amp;&amp; log.groupType == 3 ? Typeface.BOLD : Typeface.NORMAL}"
+                        tools:text="Geocoded or Type"
+                        tools:visibility="gone" />
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/log_bottom_circle"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_circle_medium_black"
+                        android:visibility="@{log.groupType == 3 ? View.GONE : View.VISIBLE}"
+                        app:shapeAppearance="@style/circleImageViewStyle" />
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/log_bottom_circle_red"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_circle_medium_red"
+                        android:visibility="@{log.groupType == 3 ? View.VISIBLE : View.GONE}"
+                        app:shapeAppearance="@style/circleImageViewStyle"
+                        tools:visibility="gone" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/log_day_date_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@{log.groupTimeDayDate}" />
+                        android:text="@{formatter.formatDatetimeMillis(log.groupLatestTimeMillis)}"
+                        android:textAppearance="?textAppearanceCaption"
+                        android:visibility="@{log.groupType == 3 ? View.GONE : View.VISIBLE}"
+                        tools:text="00:00 AM" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/log_day_date_time_red"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{formatter.formatDatetimeMillis(log.groupLatestTimeMillis)}"
+                        android:textAppearance="?textAppearanceCaption"
+                        android:textColor="@color/red_missed_call"
+                        android:visibility="@{log.groupType == 3 ? View.VISIBLE : View.GONE}"
+                        app:textStyle="@{log.new &amp;&amp; log.groupType == 3 ? Typeface.BOLD : Typeface.NORMAL}"
+                        tools:text="00:00 AM"
+                        tools:visibility="gone" />
 
                 </com.google.android.material.circularreveal.CircularRevealLinearLayout>
 
             </com.google.android.material.circularreveal.CircularRevealLinearLayout>
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/log_info_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="25sp"
-                android:padding="12dp"
-                android:src="@drawable/ic_phone"
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/log_action_icon"
+                android:layout_width="@dimen/list_item_avatar_size"
+                android:layout_height="@dimen/list_item_avatar_size"
+                android:layout_marginEnd="@dimen/list_item_end_icon_size"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:scaleType="center"
+                android:src="@drawable/ic_phone_outline"
+                app:shapeAppearance="@style/circleImageViewStyle"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

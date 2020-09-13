@@ -1,4 +1,4 @@
-package com.rehyapp.calltimer.calllogging
+package com.rehyapp.calltimer.call_logging
 
 data class LogObjectRaw(
     //Added API 1

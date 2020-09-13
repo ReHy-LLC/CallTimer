@@ -1,25 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
         <variable
             name="log"
-            type="com.rehyapp.calltimer.calllogging.RecentsUIGroupingsObject" />
+            type="com.rehyapp.calltimer.call_logging.RecentsUIGroupingsObject" />
+
     </data>
 
-        <com.google.android.material.circularreveal.CircularRevealRelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_gravity="center_vertical">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="@{log.groupTopText}"
-                android:textAllCaps="true"
-                android:textAppearance="?attr/textAppearanceOverline" />
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/list_item_header_height"
+            android:layout_marginStart="@dimen/list_item_margin_spacing"
+            android:gravity="center_vertical|start"
+            android:text="@{log.headerText}"
+            android:textAppearance="@style/TextAppearance.MyTheme.Overline"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        </com.google.android.material.circularreveal.CircularRevealRelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

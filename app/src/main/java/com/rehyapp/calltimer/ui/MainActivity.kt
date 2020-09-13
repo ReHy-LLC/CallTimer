@@ -7,14 +7,17 @@ import android.os.Bundle
 import android.telecom.TelecomManager
 import android.view.Menu
 import android.view.MenuItem
+import android.view.Window
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
 import com.rehyapp.calltimer.R
 import com.rehyapp.calltimer.databinding.ActivityMainBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -34,12 +37,30 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS)
+
+        // Attach a callback used to capture the shared elements from this Activity to be used
+        // by the container transform transition
+        setExitSharedElementCallback(MaterialContainerTransformSharedElementCallback())
+
+        // Keep system bars (status bar, navigation bar) persistent throughout the transition.
+        window.sharedElementsUseOverlay = false
+
         super.onCreate(savedInstanceState)
 
         //set data binding vars
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
         binding.viewModel = sharedViewModel
+
+        //observe changes to new count to update badge -- count refreshes on onResume
+        sharedViewModel.recentsUnreadMissedCount.observe(this, {
+            if (it > 0) {
+                binding.navViewNav.getOrCreateBadge(R.id.navigation_recents).number = it
+            } else {
+                binding.navViewNav.removeBadge(R.id.navigation_recents)
+            }
+        })
 
         //setup recents recycler switch
         setupRecentsRecyclerSwitch()
@@ -48,15 +69,47 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
         val navView: BottomNavigationView = binding.navViewNav
         val navController = findNavController(R.id.nav_host_fragment)
         navView.setupWithNavController(navController)
-        super.onPostCreate(savedInstanceState)
+        navView.setOnNavigationItemReselectedListener { }
+        /*val fragRecents = supportFragmentManager.fragments[0]
+        val fragContacts = ContactsFragment()
+        val fragTimer = TimerFragment()
+        activeFrag = fragRecents
+        supportFragmentManager.beginTransaction().add(fragContacts, "contacts").add(fragTimer, "timer").commit()
+        supportFragmentManager.beginTransaction().hide(fragContacts).hide(fragTimer).commit()
+        navView.setOnNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.navigation_recents -> {
+                    supportFragmentManager.beginTransaction().hide(activeFrag).show(fragRecents).commit()
+                    sharedViewModel.setActivityIsRecentsFragShowing(true)
+                    return@setOnNavigationItemSelectedListener true
+                }
+                R.id.navigation_contacts -> {
+                    supportFragmentManager.beginTransaction().hide(activeFrag).show(fragContacts).commit()
+                    if (sharedViewModel.activityIsRecentsFragShowing.value == true) {
+                        sharedViewModel.setActivityIsRecentsFragShowing(false)
+                    }
+                    return@setOnNavigationItemSelectedListener true
+                }
+                R.id.navigation_timer -> {
+                    supportFragmentManager.beginTransaction().hide(activeFrag).show(fragTimer).commit()
+                    if (sharedViewModel.activityIsRecentsFragShowing.value == true) {
+                        sharedViewModel.setActivityIsRecentsFragShowing(false)
+                    }
+                    return@setOnNavigationItemSelectedListener true
+                }
+            }
+            false
+        }*/
     }
 
     override fun onResume() {
         super.onResume()
         checkDefaultDialer()
+        sharedViewModel.getNewMissedCallCount()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -66,7 +119,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         val menuItem = menu?.findItem(R.id.main_menu_recents_clear_all)
-        menuItem?.isVisible = sharedViewModel.activityIsRecentsFragShowing.value ?: false
+        menuItem?.isVisible = (sharedViewModel.activityIsRecentsFragShowing.value!!
+                && sharedViewModel.recentsHasPermissions.value!!
+                && sharedViewModel.recentsHasLogsToShow.value!!)
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -83,7 +138,12 @@ class MainActivity : AppCompatActivity() {
                     builder.apply {
                         setTitle(getString(R.string.title_clear_all_calls_dialog))
                         setMessage(getString(R.string.message_clear_all_calls_dialog))
-                        setIcon(getDrawable(R.drawable.ic_alert))
+                        setIcon(
+                            ContextCompat.getDrawable(
+                                it.applicationContext,
+                                R.drawable.ic_alert
+                            )
+                        )
                         setPositiveButton(getString(R.string.ok)) { _, _ -> sharedViewModel.recentsDeleteAllCallLogs() }
                         setNegativeButton(getString(R.string.cancel)) { _, _ -> }
                         setCancelable(true)

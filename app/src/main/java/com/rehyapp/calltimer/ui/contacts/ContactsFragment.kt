@@ -30,7 +30,11 @@ class ContactsFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contacts, container, false)
         binding.viewModel = sharedViewModel
         binding.lifecycleOwner = activity
-        sharedViewModel.setActivityToolbarTitle(getString(R.string.title_contacts))
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sharedViewModel.setActivityIsRecentsFragShowing(false)
     }
 }
