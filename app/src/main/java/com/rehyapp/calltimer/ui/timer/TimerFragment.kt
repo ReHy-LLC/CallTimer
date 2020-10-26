@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.rehyapp.calltimer.databinding.FragmentTimerBinding
 
@@ -25,7 +24,7 @@ class TimerFragment : Fragment() {
     ): View? {
         timerViewModel = ViewModelProvider(this).get(TimerViewModel::class.java)
         binding = FragmentTimerBinding.inflate(inflater, container, false)
-        timerViewModel.text.observe(viewLifecycleOwner, Observer {
+        timerViewModel.text.observe(viewLifecycleOwner, {
             binding.textTimer.text = it
         })
         return binding.root

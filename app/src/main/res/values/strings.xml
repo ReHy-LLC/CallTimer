@@ -86,7 +86,7 @@
     <string name="permission_permanent_denial_read_write_call_logs">Permission to read or write call logs was permanently denied. You must enable this permission in settings.</string>
     <string name="permission_permanent_denial_read_write_contacts">Permission to read or write contacts was permanently denied. You must enable this permission in settings.</string>
     <string name="permission_permanent_denial_calls_call_logs_contacts">Permission to place calls, read or write contacts or call logs was permanently denied. You must enable this permission in settings.</string>
-    <string name="permission_title_calls_call_logs_contacts">Place calls, Read Call Logs, and Read Contacts</string>
+    <string name="permission_title_calls_call_logs_contacts">Please grant permissions</string>
     <string name="title_recents_long">View Recent Call Logs</string>
     <string name="title_clear_all_calls_dialog">Clear call history?</string>
     <string name="message_clear_all_calls_dialog">This will delete all calls from your history</string>

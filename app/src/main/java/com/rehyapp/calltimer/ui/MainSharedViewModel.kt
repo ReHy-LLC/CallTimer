@@ -3,7 +3,6 @@ package com.rehyapp.calltimer.ui
 import android.app.Application
 import android.provider.CallLog
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.rehyapp.calltimer.R
@@ -13,76 +12,89 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainSharedViewModel(private val logManager: LogManager, application: Application) :
+
     AndroidViewModel(application) {
 
     companion object {
+
         private const val LOG_TAG = "MainSharedViewModel"
+
     }
 
     private val context = getApplication<Application>().applicationContext
 
+    /****************************** BEGIN ACTIVITY SECTION ************************************/
     private val _activityIsRecentsFragShowing = MutableLiveData<Boolean>()
-    val activityIsRecentsFragShowing: MutableLiveData<Boolean> = _activityIsRecentsFragShowing
+    val activityIsRecentsFragShowing = _activityIsRecentsFragShowing
 
-    fun setActivityIsRecentsFragShowing(isRecentsFragShowing: Boolean) {
+    fun activityIsRecentsFragShowing(isRecentsFragShowing: Boolean) {
         _activityIsRecentsFragShowing.value = isRecentsFragShowing
     }
 
-    /****************************** BEGIN RECENTS FRAGMENT SECTION ************************************/
+    private val _activityIsDefaultDialer = MutableLiveData<Boolean>()
+    val activityIsDefaultDialer = _activityIsDefaultDialer
+
+    fun activitySetIsDefaultDialer(isDefaultDialer: Boolean) {
+        _activityIsDefaultDialer.value = isDefaultDialer
+    }
+    /****************************** END ACTIVITY SECTION *************************************/
+
+    /****************************** BEGIN RECENTS FRAGMENT SECTION ***************************/
     private val _recentsUnreadMissedCount = MutableLiveData<Int>()
-    val recentsUnreadMissedCount: MutableLiveData<Int> = _recentsUnreadMissedCount
+    val recentsUnreadMissedCount = _recentsUnreadMissedCount
+
+    fun getNewMissedCallCount() {
+        viewModelScope.launch(Dispatchers.IO) { _recentsUnreadMissedCount.postValue(logManager.getNewMissedCallCount()) }
+    }
 
     private val _recentsHasPermissions = MutableLiveData<Boolean>()
-    val recentsHasPermissions: MutableLiveData<Boolean> = _recentsHasPermissions
+    val recentsHasPermissions = _recentsHasPermissions
+
+    fun recentsUpdateHasPermissions(__hasPermissions: Boolean) {
+        _recentsHasPermissions.postValue(__hasPermissions)
+        if (__hasPermissions) {
+            if (recentsFilteredMissed.value == true) {
+                recentsShowMissedCallLogs()
+            } else {
+                recentsShowAllCallLogs()
+            }
+        }
+    }
 
     private val _recentsHasLogsToShow = MutableLiveData<Boolean>()
-    val recentsHasLogsToShow: MutableLiveData<Boolean> = _recentsHasLogsToShow
+    val recentsHasLogsToShow = _recentsHasLogsToShow
 
     private val _recentsNoPermissionText = MutableLiveData<String>()
-    val recentsNoPermissionText: MutableLiveData<String> = _recentsNoPermissionText
+    val recentsNoPermissionText = _recentsNoPermissionText
 
     private val _recentsNoPermissionButtonText = MutableLiveData<String>()
-    val recentsNoPermissionButtonText: MutableLiveData<String> = _recentsNoPermissionButtonText
-
-    private val _recentsFilteredMissed = MutableLiveData<Boolean>()
-    val recentsFilteredMissed: MutableLiveData<Boolean> = _recentsFilteredMissed
+    val recentsNoPermissionButtonText = _recentsNoPermissionButtonText
 
     fun recentsSetNoPermissionTexts(noPermissionTextLong: String, noPermissionButtonText: String) {
         _recentsNoPermissionText.postValue(noPermissionTextLong)
         _recentsNoPermissionButtonText.postValue(noPermissionButtonText)
     }
 
-    private val _recentsCallLogData = MutableLiveData<MutableList<RecentsUIGroupingsObject>>()
-    val recentsCallLogData: LiveData<MutableList<RecentsUIGroupingsObject>>
-        get() = _recentsCallLogData
+    private val _recentsFilteredMissed = MutableLiveData<Boolean>()
+    val recentsFilteredMissed = _recentsFilteredMissed
 
-    init {
-        _recentsHasPermissions.value = true
-        _recentsHasLogsToShow.value = true
-        _activityIsRecentsFragShowing.value = true
-    }
-
-    fun getNewMissedCallCount() {
+    fun markNewMissedCallsAsRead() {
         viewModelScope.launch(Dispatchers.IO) {
-            _recentsUnreadMissedCount.postValue(logManager.getNewMissedCallCount())
+            logManager.markNewAsRead()
         }
     }
 
+    private val _recentsCallLogData = MutableLiveData<MutableList<RecentsUIGroupingsObject>>()
+    val recentsCallLogData = _recentsCallLogData
+
     fun recentsShowAllCallLogs() {
         recentsLoadCallLogsByType(-1)
-        _recentsFilteredMissed.value = false
+        _recentsFilteredMissed.postValue(false)
     }
 
     fun recentsShowMissedCallLogs() {
         recentsLoadCallLogsByType(CallLog.Calls.MISSED_TYPE)
-        _recentsFilteredMissed.value = true
-    }
-
-    fun recentsUpdateHasPermissions(__hasPermissions: Boolean) {
-        _recentsHasPermissions.postValue(__hasPermissions)
-        if (__hasPermissions) {
-            recentsShowAllCallLogs()
-        }
+        _recentsFilteredMissed.postValue(true)
     }
 
     private fun recentsLoadCallLogsByType(callType: Int) {
@@ -128,6 +140,15 @@ class MainSharedViewModel(private val logManager: LogManager, application: Appli
     }
     /****************************** END RECENTS FRAGMENT SECTION **************************************/
 
+    /****************************** BEGIN CALL DETAILS FRAGMENT SECTION *******************************/
+    private val _text = MutableLiveData<String>()
+    val text: MutableLiveData<String> = _text
+
+    fun callDetailsMarkReadyById(callIds: LongArray) {
+        logManager.markAsReadById(callIds)
+    }
+    /****************************** END CALL DETAILS FRAGMENT SECTION *********************************/
+
     /****************************** BEGIN CONTACTS FRAGMENT SECTION ***********************************/
 
     /****************************** END CONTACTS FRAGMENT SECTION *************************************/
@@ -143,4 +164,11 @@ class MainSharedViewModel(private val logManager: LogManager, application: Appli
     /****************************** BEGIN DIALER FRAGMENT SECTION *************************************/
 
     /****************************** END DIALER FRAGMENT SECTION ***************************************/
+
+    init {
+        _recentsHasPermissions.value = false
+        _recentsHasLogsToShow.value = false
+        _activityIsRecentsFragShowing.value = false
+    }
+
 }

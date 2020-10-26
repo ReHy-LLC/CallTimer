@@ -1,6 +1,7 @@
 package com.rehyapp.calltimer.call_logging
 
 import android.annotation.SuppressLint
+import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
@@ -451,6 +452,42 @@ class LogManager(_context: Context) {
             .plus(1)
 
         return getCallLogList(selection).size
+
+    }
+
+    fun markNewAsRead() {
+
+        val cv = ContentValues()
+        cv.put(CallLog.Calls.NEW, 0)
+
+        val selection = CallLog.Calls.NEW.plus(" = ").plus(1)
+
+        context.contentResolver.update(
+            CallLog.Calls.CONTENT_URI,
+            cv,
+            selection,
+            null
+        )
+
+    }
+
+    fun markAsReadById(callIds: LongArray) {
+
+        for (i in callIds) {
+
+            val cv = ContentValues()
+            cv.put(CallLog.Calls.NEW, 0)
+
+            val selection = CallLog.Calls._ID.plus(" = ").plus(i)
+
+            context.contentResolver.update(
+                CallLog.Calls.CONTENT_URI,
+                cv,
+                selection,
+                null
+            )
+
+        }
 
     }
 

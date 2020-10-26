@@ -86,7 +86,7 @@ class RecentsAdapter : ListAdapter<RecentsUIGroupingsObject, RecyclerView.ViewHo
                     else -> false
                 }
             }
-            itemView.setOnCreateContextMenuListener { menu, v, menuInfo ->
+            itemView.setOnCreateContextMenuListener { menu, v, _ ->
                 menu.setHeaderTitle(
                     LogFormatter(itemView.context.applicationContext).formatPhoneNumber(
                         log.groupNumber

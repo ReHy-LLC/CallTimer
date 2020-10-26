@@ -35,6 +35,6 @@ class DialerFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        sharedViewModel.setActivityIsRecentsFragShowing(false)
+        sharedViewModel.activityIsRecentsFragShowing(false)
     }
 }

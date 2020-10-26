@@ -2,6 +2,7 @@ package com.rehyapp.calltimer.in_call_utils
 
 import android.telecom.Call
 import android.telecom.VideoProfile
+import com.rehyapp.calltimer.BuildConfig
 import io.reactivex.subjects.BehaviorSubject
 
 
@@ -26,12 +27,16 @@ class OngoingCall {
     }
 
     fun answer() {
-        assert(call != null)
+        if (BuildConfig.DEBUG && call == null) {
+            error("Assertion failed")
+        }
         call!!.answer(VideoProfile.STATE_AUDIO_ONLY)
     }
 
     fun hangup() {
-        assert(call != null)
+        if (BuildConfig.DEBUG && call == null) {
+            error("Assertion failed")
+        }
         call!!.disconnect()
     }
 
